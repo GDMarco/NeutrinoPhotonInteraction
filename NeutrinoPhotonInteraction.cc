@@ -34,11 +34,13 @@ void NeutrinoPhotonInteraction::setHaveSecondaries(bool haveSecondaries) {
 void NeutrinoPhotonInteraction::setLimit(double limit) {
     this->limit = limit;
 }
+
 /**
 void NeutrinoPhotonInteraction::setThinning(double thinning) {
     this->thinning = thinning;
 }
- */
+*/
+
 void NeutrinoPhotonInteraction::initRate(std::string filename) {
     std::ifstream infile(filename.c_str());
     
@@ -69,10 +71,10 @@ void NeutrinoPhotonInteraction::performInteraction(Candidate *candidate) const {
     if (not haveSecondaries)
         return;
 
-    double mass_W = 1.; //value in kg //W(+) particle ID ==24
     double w = 1.;
     // Use assumption of Secke 98
-    // W boson produced on shell
+    // W boson produced on shell, mass_W needs to be defined in Units.h:
+    // static const double mass_W = 80.377 * 1e9 * 1.602176487e-19 *  (2.99792458e-2 * 1e-16) * kilogram;
     double z = candidate->getRedshift();
     double E = candidate->current.getEnergy() * (1 + z);
     double Ee = (E - mass_W * c_squared);
