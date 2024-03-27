@@ -71,51 +71,53 @@ void NeutrinoPhotonInteraction::performInteraction(Candidate *candidate) const {
     if (not haveSecondaries)
         return;
 
-    double w = 1.;
-    // Use assumption of Secke 98
+    double w = 1.; // no weights for now!
+    // Use assumption of Seckel, 1998: W boson production on-shell.
     // W boson produced on shell, mass_W needs to be defined in Units.h:
     // static const double mass_W = 80.377 * 1e9 * 1.602176487e-19 *  (2.99792458e-2 * 1e-16) * kilogram;
     double z = candidate->getRedshift();
     double E = candidate->current.getEnergy() * (1 + z);
-    double Ee = (E - mass_W * c_squared);
+    double Ee = (E - (mass_W + mass_electron) * c_squared);
 
     Random &random = Random::instance();
     Vector3d pos = random.randomInterpolatedPosition(candidate->previous.getPosition(), candidate->current.getPosition());
+    
     if (haveSecondaries)
         candidate->addSecondary(11, Ee / (1 + z), pos, w, interactionTag);
+        // candidate->addSecondary()
 }
 
 void NeutrinoPhotonInteraction::process(Candidate *candidate) const
 {
     // To enable parallelization, the modules have to be stateless - the
     // process method should thus not modify internal variables!
-    std::cout << "NeutrinoPhotonInteraction::Module::process() called\n";
+    //std::cout << "NeutrinoPhotonInteraction::Module::process() called\n";
     if (candidate->current.getId() != 12)
         return;
    
     // scale the electron energy instead of background photons
-        double z = candidate->getRedshift();
-        double E = (1 + z) * candidate->current.getEnergy();
+    double z = candidate->getRedshift();
+    double E = (1 + z) * candidate->current.getEnergy();
 
-        // check if in tabulated energy range
-        if (E < tabEnergy.front() or (E > tabEnergy.back()))
-            return;
+    // check if in tabulated energy range
+    if (E < tabEnergy.front() or (E > tabEnergy.back()))
+        return;
 
-        // interaction rate
-        double rate = interpolate(E, tabEnergy, tabRate);
-        rate *= pow_integer<2>(1 + z) * photonField->getRedshiftScaling(z);
+    // interaction rate
+    double rate = interpolate(E, tabEnergy, tabRate);
+    rate *= pow_integer<2>(1 + z) * photonField->getRedshiftScaling(z);
 
-        // check for interaction
-        Random &random = Random::instance();
-        double randDistance = -log(random.rand()) / rate;
-        double step = candidate->getCurrentStep();
-        if (step < randDistance) {
-            candidate->limitNextStep(limit / rate);
-            return;
-        } else { // after performing interaction photon ceases to exist (hence return)
-            performInteraction(candidate);
-            return;
-        }
+    // check for interaction
+    Random &random = Random::instance();
+    double randDistance = -log(random.rand()) / rate;
+    double step = candidate->getCurrentStep();
+    if (step < randDistance) {
+        candidate->limitNextStep(limit / rate);
+        return;
+    } else { // after performing interaction photon ceases to exist (hence return)
+        performInteraction(candidate);
+        return;
+    }
 }
 
 void NeutrinoPhotonInteraction::setInteractionTag(std::string tag) {
