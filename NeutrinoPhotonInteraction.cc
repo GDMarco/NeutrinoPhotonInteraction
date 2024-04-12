@@ -77,7 +77,7 @@ void NeutrinoPhotonInteraction::performInteraction(Candidate *candidate) const {
     // static const double mass_W = 80.377 * 1e9 * 1.602176487e-19 *  (2.99792458e-2 * 1e-16) * kilogram;
     double z = candidate->getRedshift();
     double E = candidate->current.getEnergy() * (1 + z);
-    double Ee = (E - (mass_W + mass_electron) * c_squared);
+    double Ee = (E - mass_W * c_squared);
 
     Random &random = Random::instance();
     Vector3d pos = random.randomInterpolatedPosition(candidate->previous.getPosition(), candidate->current.getPosition());
