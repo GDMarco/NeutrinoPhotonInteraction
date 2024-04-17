@@ -1,0 +1,13 @@
+\babel@toc {british}{}\relax 
+\contentsline {section}{\numberline {1}Introduction and notation}{1}{section.1}%
+\contentsline {paragraph}{Neutrino-neutrino interactions.}{1}{section*.2}%
+\contentsline {paragraph}{Neutrino-photon interactions.}{2}{section*.3}%
+\contentsline {section}{\numberline {2}Computation of squared amplitudes}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}neutrino-neutrino interactions}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}neutrino-photons interactions}{2}{subsection.2.2}%
+\contentsline {paragraph}{$\nu _1 q\bar q$ and $\nu _1 \ell \bar \ell $.}{3}{section*.5}%
+\contentsline {paragraph}{$\ell _1q\bar q^{\prime }$.}{3}{section*.6}%
+\contentsline {paragraph}{$\ell _1 \nu _2 \bar \ell _2$.}{3}{section*.7}%
+\contentsline {paragraph}{$\ell _1 \nu _1 \bar \ell _1$.}{3}{section*.8}%
+\contentsline {section}{\numberline {3}Cross-section and phase space implementation}{4}{section.3}%
+\contentsline {section}{\numberline {4}Results}{5}{section.4}%

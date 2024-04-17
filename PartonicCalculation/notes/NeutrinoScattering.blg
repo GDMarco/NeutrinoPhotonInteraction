@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2022)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: NeutrinoScattering.aux
+The style file: JHEP.bst
+Database file #1: NeutrinoScattering.bib
+You've used 1 entry,
+            2195 wiz_defined-function locations,
+            518 strings with 3578 characters,
+and the built_in function-call counts, 299 in all, are:
+= -- 30
+> -- 4
+< -- 0
++ -- 2
+- -- 1
+* -- 26
+:= -- 48
+add.period$ -- 1
+call.type$ -- 1
+change.case$ -- 1
+chr.to.int$ -- 0
+cite$ -- 1
+duplicate$ -- 17
+empty$ -- 29
+format.name$ -- 1
+if$ -- 74
+int.to.chr$ -- 0
+int.to.str$ -- 1
+missing$ -- 4
+newline$ -- 6
+num.names$ -- 1
+pop$ -- 4
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 10
+stack$ -- 0
+substring$ -- 11
+swap$ -- 7
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 2
+width$ -- 2
+write$ -- 14
