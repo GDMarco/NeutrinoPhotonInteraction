@@ -40,7 +40,7 @@ OBJDIR = ./obj
 INCDIR = ./inc
 
 # Define various source files (i.e. the core files)
-SOURCES = integration.cc cuts.cc tools.cc var.cc ME2_Analytic.cc dsigma_nu.cc 
+SOURCES = integration.cc cuts.cc tools.cc var.cc ME2_Analytic.cc dsigma.cc 
 # Append to this those for the various processes
 # SIGMA_SOURCES = test_dsigma.cc
 
@@ -55,6 +55,7 @@ OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
 INCLUDE_PATH += -I$(SRCDIR) -I$(INCDIR)
 
 CXXFLAGS += $(INCLUDE_PATH)
+CXXFLAGS += "-Wl,-no_warn_duplicate_libraries"
 
 # Build all binaries
 all: $(BINDIR)/Sigma.exe

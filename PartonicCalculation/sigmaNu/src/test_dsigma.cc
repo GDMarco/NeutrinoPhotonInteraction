@@ -13,7 +13,7 @@
 #include "var.hh"
 #include "tools.hh"
 // Process files
-#include "dsigma_nu.hh"
+#include "dsigma.hh"
 //Timing
 #include <sys/time.h>
 
@@ -24,54 +24,71 @@ using namespace Variables;
 // pdf_info pdf_cache;
 int seed_cache;
 int grid_cache = 2;
+// Update this
+int pdg_cache[4] = {0};
+
+
+// Better interface:
+// pdg of p1
+// pdg of p2
+// pdg of p3
+// pdg of p4
+
+// If pdg of p2 (the target) is a neutrino its 2to2, or photon 2to3
+// due to charge conservation, pdg of p5 is always known from this
 
 // Write more user-friendly command line reader
 void print_usage() {
 	cout << endl
 		<< "Usage, dSigma:" << endl
-		<< " -s --seed			<s>		seed number for integration"  << endl
-		<< " -t --targ			<t>		target particle (nu,nux,gamma)" << endl		
-		<< " -p --proc			<p>   process (nunu or nugamma)" << endl
-		<< " -c --corr			<c>		correction (LO supported)" << endl		
-		<< " -o --iobs			<o>		potentially if we consider some specific observeables or channel?" << endl
+		<< " -s --seed			<s>		seed number for integration\n"
+		<< " -o --iobs			<o>		potentially if we consider some specific observeables or channel?\n"
+		// Then the PDG of particles 1,2,3,4
+		<< " -a --pdg_a			<a>		pdg of particle a(p1)\n" 
+		<< " -b --pdg_b			<a>		pdg of particle b(p2)\n"
+		<< " -c --pdg_c			<a>		pdg of particle c(p3)\n"
+		<< " -d --pdg_d			<a>		pdg of particle d(p4)\n"
 		<< endl;
 	exit(0);
 	return;
 }
 
 // Introduce a more user friendly interface
-void read_arguments(int argc, char* argv[], int &seed, string &targ, string &proc, string &corr, int &iobs ) {
-	const char* const short_options = "s:t:p:c:o:";
+void read_arguments(int argc, char* argv[], int &seed, int &iobs, int pdgs[4] ) {
+	// provide it length 4 integer array for PDG codes (these must all be entered)
+	const char* const short_options = "s:o:a:b:c:d:";
 	const struct option long_options[] = { { "help", 0, NULL, 'h' },
 		   { "seed", 1, NULL,  's' },
-		   { "targ", 1, NULL,  't' },
-		   { "proc", 1, NULL,  'p' },		      
-		   { "corr", 1, NULL,  'c' },
 		   { "iobs", 1, NULL,  'o' },
+		   { "pdg_a",1, NULL,  'a' },
+		   { "pdg_b",1, NULL,  'b' },
+		   { "pdg_c",1, NULL,  'c' },
+		   { "pdg_d",1, NULL,  'd' },		   		   		   
 		   { NULL, 0, NULL, 0 } };
 	int next_option;
-	ostringstream s_corr, s_proc, s_targ;	
+	ostringstream s_corr, s_proj, s_targ;	
 	do {
 		next_option = getopt_long (argc, argv, short_options, long_options, NULL);
 		switch (next_option) {
 			case 's':
 				seed = stoi(optarg, NULL);
-				break;
-			case 't':
-				s_targ << optarg;
-				corr = s_targ.str();
-				break;				
-			case 'p':
-				s_proc << optarg;
-				proc = s_proc.str();
-				break;
-			case 'c':
-				s_corr << optarg;
-				corr = s_corr.str();
-				break;							
+				break;						
 			case 'o':
 				iobs = stoi(optarg, NULL);
-				break;										
+				break;
+			// PDG for p1, p2, p3, p4
+			case 'a':
+				pdgs[0] = stoi(optarg, NULL);
+				break;
+			case 'b':
+				pdgs[1] = stoi(optarg, NULL);
+				break;
+			case 'c':
+				pdgs[2] = stoi(optarg, NULL);
+				break;
+			case 'd':
+				pdgs[3] = stoi(optarg, NULL);
+				break;																
 			case '?':
 				print_usage();
 			case -1: break;
@@ -90,20 +107,28 @@ int Vegas_Interface(const int *ndim, const cubareal xx[],
 	// The integrand value (thing to be integrated), initialise to zero
 	double dsigma_summed(0.);
 
-	if( s_process != "nunu" and s_process != "nugamma" ){
-		cerr << "Vegas_Interface:: unknown process selection s_process = " << s_process << endl;
+	if( s_projectile != "nu" and s_projectile != "nux" ){
+		cerr << "Vegas_Interface:: unknown projectile = " << s_projectile << endl;
 		abort();
 	}
 
 	// Define some variables to control the phase-space and random variable setup
 	int nrandom(0); // No additional integrations required for parton level computations
-	// Final-state particle multiplicity (based on correction type)
-	int nfinal = nfinal_2to2_Born( s_correction );
 
-	// Create array of masses
+	// 2to3 if target is a photon, otherwise 2to2
+	int nfinal = ( s_target == "gamma" )? 3: 2;
+
+	// Create array of masses of final state particles
 	double masses[nfinal] = {0.};
 
-	// Assign these particle masses according to the selected subprocess
+	// Assign masses based on secondaries
+	// For now change them to muon mass?
+	if( nfinal == 3 ){
+		masses[1] = 0.1;
+		masses[2] = 0.1;
+	}
+
+	// Assign these particle masses according to the subprocess (i.e. the channel list)
 	// For now take them to be massless
 
 	// Create phase-space
@@ -111,10 +136,17 @@ int Vegas_Interface(const int *ndim, const cubareal xx[],
 	// Manually set as(muR) probably not needed
 	Kin.set_as_mur( 0.118 );
 
-	if( s_process == "nunu" ){
-		//
-		dsigma_summed = dsigma_nunu_LO( Kin );
+	// At this stage, assign the pdg numbers to the data structure
+	if( s_target == "nu" or s_target == "nux" ){
+		// 2 > 2 (anti)neutrino [anti]neutrino scattering
+		dsigma_summed = dsigma_nu( Kin, pdg_cache );
+		
 	}
+	else if( s_target == "gamma" ){
+		// 2 > 3 (anti)neutrino photon scattering
+		dsigma_summed = dsigma_gamma( Kin, pdg_cache );
+	}
+
 
 	// ...
 
@@ -133,10 +165,10 @@ int main(int argc, char *argv[])
   // Initialise program defaults
 	init_default();
 
-
 	// Set up specific values for some global definitions
-	s_process = "nunu"; 	// heavy-quark pair production
-	s_target  = "nu"; // nu, nux, gamma
+	s_process = ""; 	// heavy-quark pair production
+	s_target  = "nu"; 		// Options: nu, nux, gamma
+	s_projectile = "nu";
   // Initialise some process specific scales/variables
 	scale_opt = -1;
 	// Scale options
@@ -151,11 +183,19 @@ int main(int argc, char *argv[])
 
 	int isetup(0); // If we perhaps want to select some specific processes
 
-	// Now read the specific set of command line arguments
-	read_arguments(argc,argv,seed_cache,s_target,s_process,s_correction,isetup);
 
-	// Update the number of CUBA dimensions based on the assigned type of correction, process etc.
-	update_process_dimensions();
+	// Now read the specific set of command line arguments
+	read_arguments(argc,argv,seed_cache,isetup,pdg_cache);
+
+	// Process registration
+	cout << "Process registration\n"
+		<< "p(1,pdg="<<pdg_cache[0]<<") + "
+		<< "p(2,pdg="<<pdg_cache[1]<<") > "
+		<< "p(3,pdg="<<pdg_cache[2]<<") + "
+		<< "p(4,pdg="<<pdg_cache[3]<<")\n";
+
+	// Update target and projectile names, and cuba dimensions
+	update_process( pdg_cache );
 
 	// Print main program settings
 	print_settings();
@@ -185,7 +225,7 @@ int main(int argc, char *argv[])
 	// Store cross-section data //
 	//////////////////////////////
 	const std::string s_analysis[2] = {"sigma","sigma_Ecms"};
-  string outfile = s_analysis[isetup]+"_" + s_process + "_" + s_correction;
+  string outfile = s_analysis[isetup]+"_" + s_projectile + "_" + s_target;
   ofstream ofile_results;
   ofile_results.open(outfile+"_s"+to_string(seed_cache)+".txt");
 	write_settings(ofile_results,"no pdfs",s_process);

@@ -79,11 +79,15 @@ namespace Variables {
 	// Function that will write the program settings to a text file (passed by reference)
 	void write_settings(std::ofstream &, const std::string, std::string process = std::string() );
 
+	// Boolean for neutrino pdg code
+	bool is_neutrino(int);
+
+	// Update process and dimensions
+	void update_process(int*);
 	// Global variable to control integration dimensions of integrands	
 	extern int cuba_dimensions;
 	// Function to assign the global variable based on proc, correction and hvq options
 	void update_process_dimensions();
-	int nfinal_2to2_Born(std::string);
 
 	// -1 = fixed scale, 1 = et_V
 	extern int scale_opt;
@@ -108,7 +112,7 @@ namespace Variables {
 	extern int nf_pdf, nf_as; // Number of active flavours in pdf/alphas running
 
 	// Some process-dependent and channel dependent options
-	extern std::string s_process, s_target;
+	extern std::string s_process, s_target, s_projectile;
 	extern std::string s_correction; // LO, R, V, VV, RV, RR
 
 	//// Any cuts on final-state?

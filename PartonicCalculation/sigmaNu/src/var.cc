@@ -11,7 +11,7 @@ using namespace std;
 using namespace Variables;
 
 // Declaration of all the external variables from var.hh
-std::string Variables::s_process, Variables::s_target, Variables::s_correction;
+std::string Variables::s_process, Variables::s_target, Variables::s_projectile, Variables::s_correction;
 
 // Some integration options (cuba dimensions, treatment of resonances)
 int Variables::cuba_dimensions;
@@ -42,38 +42,43 @@ bool Variables::active_pTnu_min,	Variables::active_pTnu_max;
 double Variables::pTnu_min, 		Variables::pTnu_max;
 
 
-// Intialise n-dimensions etc. based on process
-int Variables::nfinal_2to2_Born(std::string corr){
-	int nfinal(0);
-	// Final-state particle multiplicity
-	if( corr == "LO" or corr == "V" or corr == "VV" )
-		nfinal = 2;
-	else if( corr == "R" or corr == "RV" )
-		nfinal = 3;
-	else if( corr == "RR" )
-		nfinal = 4;
-	else{
-		cerr << "nfinal_2to2_Born: unsupported correction type " << corr << endl;
-		abort();
-	}
-	return nfinal;
-}
+
 
 // Function to update the cuba integration dimenions for every implemented process
 void Variables::update_process_dimensions(){
 
-	// s_process: nunu
-	if( s_process == "nunu" ){
+	if( s_target == "nu" or s_target == "nux" )
 		cuba_dimensions = 1;
-	}
-	else if( s_process == "nugamma" ){
+	else if( s_target == "gamma" ){
 		cuba_dimensions = 4;
 	}
 	else{
-		cerr << "process s_process = " << s_process << " which is unsupported\n";
+		cerr << "process s_target = " << s_target << " which is unsupported\n";
 		abort();
 	}
 
+}
+
+void Variables::update_process( int pdg_codes[] ){
+
+	// Check the projecile p1
+	if( is_neutrino(pdg_codes[0]) )
+		s_projectile = (pdg_codes[0]>0)? "nu": "nux";
+
+	// Check the target p2
+	if( is_neutrino(pdg_codes[1]) ){
+		s_target = (pdg_codes[1]>0)? "nu": "nux";
+	}
+	else if( pdg_codes[1] == 22 ){
+		s_target = "gamma";
+	}
+	else{
+		cout << "update_process: unspported target pdg code " << pdg_codes[1] << endl;
+		abort();
+	}
+
+	// Update the cuba dimensions accordingly
+	cuba_dimensions = (s_target=="gamma")? 4: 1;
 }
 
 // Initialise the Electroweak scheme
@@ -113,10 +118,14 @@ void Variables::init_scheme(int ischeme){
 
 }
 
-
-
-
-
+// Processes for neutrino scattering on a neutrino target
+bool Variables::is_neutrino( int pdg ){
+        if( abs(pdg) == 12 or abs(pdg) == 14 or abs(pdg) == 16 )
+                return true;
+        else{
+                return false;
+        }
+}
 
 // Set-up of default settings and cuts
 void Variables::init_default(){
@@ -155,18 +164,16 @@ void Variables::init_default(){
 
 void Variables::print_settings(){
 	cout << "\033[0;31m Summary of global settings\033[0m" << endl;
-	cout << "proc = " << s_process << endl;
-	cout << "correction = " << s_correction << endl;
+	cout << "projectile = " << s_projectile << endl;
+	cout << "target = " << s_target << endl;	
+	// cout << "proc = " << s_process << endl;
+	// cout << "correction = " << s_correction << endl;
 	//
 	cout << "scale options:\n";
 	cout << "scale_opt = " << scale_opt << endl;
 	cout << "mu0 = " << mu0 << endl;
 	cout << "muf_var = " << muf_var << endl;
 	cout << "mur_var = " << mur_var << endl;
-	//
-	cout << "nf_pdf = " << nf_pdf << endl;
-	cout << "nf_as = " << nf_as  << endl;
-	cout << "nf_var = " << nf_var << endl;
 	//
 	cout << "cuba_dimensions = " << cuba_dimensions << endl;
 }
