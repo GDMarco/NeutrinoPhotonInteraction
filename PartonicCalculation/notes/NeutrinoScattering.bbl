@@ -1,0 +1,8 @@
+\providecommand{\href}[2]{#2}\begingroup\raggedright\begin{thebibliography}{1}
+
+\bibitem{Gauld:2021zmq}
+R.~Gauld, {\it {A massive variable flavour number scheme for the Drell-Yan
+  process}},  {\em SciPost Phys.} {\bf 12} (2022), no.~1 024,
+  [\href{http://arxiv.org/abs/2107.01226}{{\tt arXiv:2107.01226}}].
+
+\end{thebibliography}\endgroup

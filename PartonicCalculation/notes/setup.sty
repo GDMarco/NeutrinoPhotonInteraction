@@ -1,0 +1,267 @@
+% AH: make life a bit easier...
+\ProvidesPackage{setup}[2017/06/19]
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% Packages
+%%%%%%%%%%%%%%%%%%%%
+
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{mathtools}
+\RequirePackage{slashed}
+\RequirePackage{xspace}
+\RequirePackage{graphicx}
+\RequirePackage{array}
+\RequirePackage{enumerate}
+\RequirePackage{xcolor}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[british]{babel}
+%\RequirePackage{cite}
+\RequirePackage{booktabs}
+\RequirePackage{multirow}
+\RequirePackage{url}
+\RequirePackage{xargs}
+%\RequirePackage{hyperref} % clash with package "jheppub"
+\RequirePackage{pifont}
+\RequirePackage{rotating}
+%\RequirePackage{adjustbox}
+%\usepackage[utf8]{inputenc}
+%\RequirePackage[utf8]{inputenc}
+\RequirePackage{tikz}
+%\RequirePackage{tikzsymbols}
+\RequirePackage{wasysym}
+\RequirePackage{physics}
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% Custom Commands
+%%%%%%%%%%%%%%%%%%%%
+
+%% vertically center
+\DeclareRobustCommand{\Vcenter}[1]{\ensuremath{\vcenter{\hbox{#1}}}\xspace}
+
+%%%%%%%%%%%%%%%%%%%%
+%% Maths
+%%%%%%%%%%%%%%%%%%%%
+
+%% ensuremath + styles
+\DeclareRobustCommand{\ensuremathrm}[1]{\ensuremath{\mathrm{#1}}\xspace}
+\DeclareRobustCommand{\ensuremathbf}[1]{\ensuremath{\mathbf{#1}}\xspace}
+\DeclareRobustCommand{\ensuremathbb}[1]{\ensuremath{\mathbb{#1}}\xspace}
+\DeclareRobustCommand{\ensuremathcal}[1]{\ensuremath{\mathcal{#1}}\xspace}
+
+%% roman
+\DeclareRobustCommand{\rd}{\ensuremathrm{d}} % differential operator
+\DeclareRobustCommand{\ri}{\ensuremathrm{i}} % imaginary i
+\DeclareRobustCommand{\re}{\ensuremathrm{e}} % Euler e
+
+%% Math Operators
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\sign}{sgn}
+\DeclareMathOperator{\Li}{Li}
+% \DeclareMathOperator{\trace}{Tr}
+\DeclareMathOperator{\rIm}{Im}
+\DeclareMathOperator{\rRe}{Re}
+\DeclareRobustCommand{\Im}{\ensuremath{\rIm}}
+\DeclareRobustCommand{\Re}{\ensuremath{\rRe}}
+
+%% useful shorthands
+\DeclareRobustCommand{\mods}[1]{\ensuremath{\left\lvert{#1}\right\rvert}}
+\DeclareRobustCommand{\modsq}[1]{\ensuremath{\mods{#1}^2}}
+
+\DeclareRobustCommand{\avg}[1]{\ensuremath{\left\langle{#1}\right\rangle}}
+
+
+%% order of
+\DeclareRobustCommand{\cO}{\ensuremathcal{O}\xspace}
+\DeclareRobustCommand{\order}[1]{\ensuremath{{\cO\!\left(#1\right)}}\xspace}
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% HEP
+%%%%%%%%%%%%%%%%%%%%
+
+%% roman
+\DeclareRobustCommand{\rs}{\ensuremathrm{s}}
+\DeclareRobustCommand{\rw}{\ensuremathrm{w}}
+\DeclareRobustCommand{\rew}{\ensuremathrm{ew}}
+
+\DeclareRobustCommand{\rT}{\ensuremathrm{T}}
+
+%% text
+\DeclareRobustCommand{\LO}{\text{LO}\xspace}
+\DeclareRobustCommand{\NLO}{\text{NLO}\xspace}
+\DeclareRobustCommand{\NNLO}{\text{NNLO}\xspace}
+\DeclareRobustCommand{\NLOPS}{\text{NLO+PS}\xspace}
+\DeclareRobustCommand{\N}[1]{\ensuremath{\text{N}^{#1}}} % no xspace!
+
+\DeclareRobustCommand{\nnlojet}{\texorpdfstring{NNLO\protect\scalebox{0.8}{JET}}{NNLOJET}\xspace}
+\DeclareRobustCommand{\NNLOJET}{\nnlojet}
+
+\DeclareRobustCommand{\bjet}{\ensuremath{b}\text{-jet}\xspace}
+\DeclareRobustCommand{\cjet}{\ensuremath{c}\text{-jet}\xspace}
+\DeclareRobustCommand{\bjets}{\ensuremath{b}\text{-jets}\xspace}
+\DeclareRobustCommand{\cjets}{\ensuremath{c}\text{-jets}\xspace}
+
+
+\DeclareRobustCommand{\jet}{\text{jet}\xspace}
+\DeclareRobustCommand{\jets}{\text{jets}\xspace}
+
+\DeclareRobustCommand{\cut}{\text{cut}\xspace}
+\DeclareRobustCommand{\miss}{\text{miss}\xspace}
+\DeclareRobustCommand{\OS}{\text{OS}\xspace}
+\DeclareRobustCommand{\max}{\text{max}\xspace}
+\DeclareRobustCommand{\min}{\text{min}\xspace}
+
+%% calligraphic
+\DeclareRobustCommand{\cM}{\ensuremathcal{M}\xspace} % Matrix Element
+\DeclareRobustCommand{\cA}{\ensuremathcal{A}\xspace} % Amplitude
+\DeclareRobustCommand{\cN}{\ensuremathcal{N}\xspace} % Normalization
+\DeclareRobustCommand{\cJ}[2]{\ensuremathcal{J}_{#1}^{(#2)}\xspace} % Jet function: matches JETXY in maple
+
+%% constants & parameters
+\DeclareRobustCommand{\sw}{\ensuremath{s_\rw}\xspace}
+\DeclareRobustCommand{\cw}{\ensuremath{c_\rw}\xspace}
+\DeclareRobustCommand{\alphaw}{\ensuremath{\alpha_\rw}\xspace}
+\DeclareRobustCommand{\alphas}{\ensuremath{\alpha_\rs}\xspace}
+\DeclareRobustCommand{\gs}{\ensuremath{g_\rs}\xspace}
+\DeclareRobustCommand{\gammaE}{\ensuremath{\gamma_\mathrm{E}}\xspace}
+
+%% make available outside of math mode
+\makeatletter
+\let\@oldalpha\alpha
+\DeclareRobustCommand{\alpha}{\ensuremath{\@oldalpha}\xspace}
+\makeatother
+
+\DeclareRobustCommand{\thetaCabibbo}{\ensuremath{\theta_\mathrm{C}}\xspace}
+\DeclareRobustCommand{\thetaC}{\thetaCabibbo}
+\DeclareRobustCommand{\thetac}{\thetaCabibbo}
+
+%% scales
+\DeclareRobustCommand{\mur}{\ensuremath{\mu_\mathrm{R}}\xspace}
+\DeclareRobustCommand{\muR}{\mur}
+\DeclareRobustCommand{\muf}{\ensuremath{\mu_\mathrm{F}}\xspace}
+\DeclareRobustCommand{\muF}{\muf}
+
+%% misc
+\DeclareRobustCommand{\MS}{\ensuremathrm{MS}\xspace}
+\DeclareRobustCommand{\MSbar}{\ensuremath{\overline{\MS}}\xspace}
+\DeclareRobustCommand{\avgsum}{\ensuremath{\overline{\sum}}\xspace}
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% Particles
+%%%%%%%%%%%%%%%%%%%%
+%% particle names should be typeset in roman
+%% (compatible with heppennames.sty)
+
+\DeclareRobustCommand{\PH}{{\ensuremathrm{H}}\xspace}
+\DeclareRobustCommand{\PB}{{\ensuremathrm{B}}\xspace}
+\DeclareRobustCommand{\PBb}{{\ensuremathrm{\bar{B}}}\xspace}
+
+%% bosons
+\DeclareRobustCommand{\PZ}{{\ensuremathrm{Z}}\xspace}
+\DeclareRobustCommand{\PW}{{\ensuremathrm{W}}\xspace}
+\DeclareRobustCommand{\PWp}{{\ensuremathrm{W^+}}\xspace}
+\DeclareRobustCommand{\PWm}{{\ensuremathrm{W^-}}\xspace}
+\DeclareRobustCommand{\PWpm}{{\ensuremathrm{W^\pm}}\xspace}
+\DeclareRobustCommand{\PWmp}{{\ensuremathrm{W^\mp}}\xspace}
+\DeclareRobustCommand{\Pg}{{\ensuremathrm{g}}\xspace}
+\DeclareRobustCommand{\Pgg}{{\ensuremathrm{\gamma}}\xspace}
+
+%% fermions
+\DeclareRobustCommand{\Pf}{{\ensuremath{f}}\xspace}
+
+%% leptons
+\DeclareRobustCommand{\Pl}{{\ensuremath{\ell}}\xspace}
+\DeclareRobustCommand{\Pal}{{\ensuremath{\bar{\ell}}}\xspace}
+\DeclareRobustCommand{\Plp}{{\ensuremath{\ell^+}}\xspace}
+\DeclareRobustCommand{\Plm}{{\ensuremath{\ell^-}}\xspace}
+\DeclareRobustCommand{\Plpm}{{\ensuremath{\ell^\pm}}\xspace}
+\DeclareRobustCommand{\Plmp}{{\ensuremath{\ell^\mp}}\xspace}
+
+\DeclareRobustCommand{\Pgn}{{\ensuremath{\nu}}\xspace}
+\DeclareRobustCommand{\Pagn}{{\ensuremath{\bar{\nu}}}\xspace}
+\DeclareRobustCommand{\Pgnl}{{\ensuremath{\nu_\ell}}\xspace}
+\DeclareRobustCommand{\Pagnl}{{\ensuremath{\bar{\nu}_\ell}}\xspace}
+
+\DeclareRobustCommand{\Pe}{{\ensuremathrm{e}}\xspace}
+\DeclareRobustCommand{\Pep}{{\ensuremathrm{e^+}}\xspace}
+\DeclareRobustCommand{\Pem}{{\ensuremathrm{e^-}}\xspace}
+\DeclareRobustCommand{\Pepm}{{\ensuremathrm{e^\pm}}\xspace}
+\DeclareRobustCommand{\Pemp}{{\ensuremathrm{e^\mp}}\xspace}
+
+\DeclareRobustCommand{\Pgm}{{\ensuremathrm{\mu}}\xspace}
+\DeclareRobustCommand{\Pgmp}{{\ensuremathrm{\mu^+}}\xspace}
+\DeclareRobustCommand{\Pgmm}{{\ensuremathrm{\mu^-}}\xspace}
+\DeclareRobustCommand{\Pgmpm}{{\ensuremathrm{\mu^\pm}}\xspace}
+\DeclareRobustCommand{\Pgmmp}{{\ensuremathrm{\mu^\mp}}\xspace}
+
+\DeclareRobustCommand{\Pgne}{{\ensuremathrm{\nu_{\!e}}}\xspace}
+\DeclareRobustCommand{\Pagne}{{\ensuremathrm{\bar{\nu}_{\!e}}}\xspace}
+\DeclareRobustCommand{\Pgngm}{{\ensuremathrm{\nu_{\!\mu}}}\xspace}
+\DeclareRobustCommand{\Pagngm}{{\ensuremathrm{\bar{\nu}_{\!\mu}}}\xspace}
+
+%% quarks
+\DeclareRobustCommand{\Pq}{{\ensuremath{q}}\xspace}
+\DeclareRobustCommand{\Paq}{{\ensuremath{\bar{q}}}\xspace}
+\DeclareRobustCommand{\Pqu}{{\ensuremathrm{u}}\xspace}
+\DeclareRobustCommand{\Pqc}{{\ensuremathrm{c}}\xspace}
+\DeclareRobustCommand{\Pqt}{{\ensuremathrm{t}}\xspace}
+\DeclareRobustCommand{\Pqd}{{\ensuremathrm{d}}\xspace}
+\DeclareRobustCommand{\Pqs}{{\ensuremathrm{s}}\xspace}
+\DeclareRobustCommand{\Pqb}{{\ensuremathrm{b}}\xspace}
+\DeclareRobustCommand{\Paqu}{{\ensuremathrm{\bar{u}}}\xspace}
+\DeclareRobustCommand{\Paqc}{{\ensuremathrm{\bar{c}}}\xspace}
+\DeclareRobustCommand{\Paqt}{{\ensuremathrm{\bar{t}}}\xspace}
+\DeclareRobustCommand{\Paqd}{{\ensuremathrm{\bar{d}}}\xspace}
+\DeclareRobustCommand{\Paqs}{{\ensuremathrm{\bar{s}}}\xspace}
+\DeclareRobustCommand{\Paqb}{{\ensuremathrm{\bar{b}}}\xspace}
+% more quarks (not in heppennames.sty!)
+\DeclareRobustCommand{\PQ}{{\ensuremath{Q}}\xspace}
+\DeclareRobustCommand{\PaQ}{{\ensuremath{\bar{Q}}}\xspace}
+
+%% nucleons
+\DeclareRobustCommand{\Pp}{{\ensuremathrm{p}}\xspace}
+\DeclareRobustCommand{\Pap}{{\ensuremathrm{\bar{p}}}\xspace}
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% units
+%%%%%%%%%%%%%%%%%%%%
+
+\DeclareRobustCommand{\eV}{\ensuremathrm{eV}\xspace}
+\DeclareRobustCommand{\keV}{\ensuremathrm{keV}\xspace}
+\DeclareRobustCommand{\MeV}{\ensuremathrm{MeV}\xspace}
+\DeclareRobustCommand{\GeV}{\ensuremathrm{GeV}\xspace}
+\DeclareRobustCommand{\TeV}{\ensuremathrm{TeV}\xspace}
+\DeclareRobustCommand{\PeV}{\ensuremathrm{PeV}\xspace}
+\DeclareRobustCommand{\nb}{\ensuremathrm{nb}\xspace}
+\DeclareRobustCommand{\pb}{\ensuremathrm{pb}\xspace}
+\DeclareRobustCommand{\fb}{\ensuremathrm{fb}\xspace}
+
+
+
+% bar with parenthesis...
+\DeclareRobustCommand{\parenbar}[1]{%
+  \mathchoice%
+  {\displaystyle\rlap{$\displaystyle\bar{#1}$}\raisebox{-0.25ex}{$\displaystyle\overset{\displaystyle\kern0.15em\scalebox{.2}{\boldmath$\displaystyle($}\kern0.5em\scalebox{.2}{\boldmath$\displaystyle)$}}{\displaystyle\phantom{#1}}$}}
+  {\textstyle\rlap{$\textstyle\bar{#1}$}\raisebox{-0.25ex}{$\textstyle\overset{\textstyle\kern0.15em\scalebox{.2}{\boldmath$\textstyle($}\kern0.5em\scalebox{.2}{\boldmath$\textstyle)$}}{\textstyle\phantom{#1}}$}}
+  {\scriptstyle\rlap{$\scriptstyle\bar{#1}$}\raisebox{-0.18ex}{$\scriptstyle\overset{\scriptstyle\kern0.13em\scalebox{.2}{\boldmath$\scriptstyle($}\kern0.35em\scalebox{.2}{\boldmath$\scriptstyle)$}}{\scriptstyle\phantom{#1}}$}}
+  {\scriptscriptstyle\rlap{$\scriptscriptstyle\bar{#1}$}\raisebox{-0.14ex}{$\scriptscriptstyle\overset{\scriptscriptstyle\kern0.12em\scalebox{.2}{\boldmath$\scriptscriptstyle($}\kern0.28em\scalebox{.2}{\boldmath$\scriptscriptstyle)$}}{\scriptscriptstyle\phantom{#1}}$}}
+\xspace}
+
+
+%%%%%%%%%%%5%%%%%%
+% Tikz Libraries %
+%%%%%%%%%%%5%%%%%%
+
+\usetikzlibrary{shapes,arrows.meta,calc}
+\usetikzlibrary{shapes.callouts}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{positioning}
+

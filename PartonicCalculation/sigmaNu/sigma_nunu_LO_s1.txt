@@ -1,0 +1,12 @@
+# Ecms = 20
+# Scale option = -1 (-1=Fixed scale, 1,2,3,...=Dynamic)
+# mu0 = 91.1535 (used if Scale option = -1 above)
+# mur_var = 1 (muR multiplicative factor)
+# muf_var = 1 (muF multiplicative factor)
+# proc = nunu
+# correction = LO
+# nf_max pdf = 5 (max number of flavours considered in pdfs)
+# nf_max as = 5 (max number of flavours considered in as)
+# nf_var = 5 (nf variable used to dynamically compute b0[nf], b1[nf] terms)
+# Sigma Fiducial
+1.88323	0.000547249
