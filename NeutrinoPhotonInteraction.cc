@@ -6,10 +6,9 @@
 #include <fstream>
 #include <limits>
 #include <stdexcept>
+#include <filesystem>
 
 namespace crpropa {
-
-//const std::string myPropertyName = "counter";
 
 // The parent's constructor need to be called on initialization!
 NeutrinoPhotonInteraction::NeutrinoPhotonInteraction(ref_ptr<PhotonField> photonField, bool haveSecondaries,  double limit) : Module() { //double thinning,
@@ -24,7 +23,7 @@ void NeutrinoPhotonInteraction::setPhotonField(ref_ptr<PhotonField> photonField)
     this->photonField = photonField;
     std::string fname = photonField->getFieldName();
     setDescription("NeutrinoPhotonInteraction::Module" + fname);
-    initRate(getDataPath("NeutrinoPhotonInteraction/rate_" + fname + ".txt"));
+    initRate(fname);
 }
 
 void NeutrinoPhotonInteraction::setHaveSecondaries(bool haveSecondaries) {
@@ -41,27 +40,46 @@ void NeutrinoPhotonInteraction::setThinning(double thinning) {
 }
 */
 
-void NeutrinoPhotonInteraction::initRate(std::string filename) {
-    std::ifstream infile(filename.c_str());
-    
-    if (!infile.good())
-        throw std::runtime_error("NeutrinoPhotonInteraction: could not open file" + filename);
+void NeutrinoPhotonInteraction::initRate(std::string fname) {
     
     tabEnergy.clear();
     tabRate.clear();
     
-    while (infile.good()) {
-        if (infile.peek() != '#') {
-            double a, b;
-            infile >> a >> b;
-            if (infile) {
-                tabEnergy.push_back(pow(10, a) * eV);
-                tabRate.push_back(b / Mpc);
+    std::unordered_map<int, std::string> dictionaryNeutrino;
+    std::__fs::filesystem::path dir = getDataPath(getDataPath("") + "data/NeutrinoPhotonInteraction/") // to check!
+    int index = 0;
+    
+    for (auto const& dir_entry : std::__fs::filesystem::directory_iterator{dir}) {
+        
+        std::string filePath = dir + dir_entry + "/rate_" + fname + ".txt"; // to check!
+        std::ifstream infile(filePath.c_str());
+        
+        if (!infile.good())
+            throw std::runtime_error("NeutrinoPhotonInteraction: could not open file" + filename);
+        
+        std::vector<double> vecEnergy;
+        std::vector<double> vecRate;
+        
+        while (infile.good()) {
+            if (infile.peek() != '#') {
+                double a, b;
+                infile >> a >> b;
+                if (infile) {
+                    vecEnergy.push_back(pow(10, a) * eV);
+                    vecRate.push_back(b / Mpc);
+                }
             }
+            infile.ignore(std::numeric_limits < std::streamsize > ::max(), '\n');
         }
-        infile.ignore(std::numeric_limits < std::streamsize > ::max(), '\n');
+        infile.close();
+        
+        this->tabEnergy.push_back(vecEnergy);
+        this->tabRate.push_back(vecRate);
+        
+        dictionaryNeutrino[index] = dir_entry;
+        index = index + 1;
     }
-    infile.close();
+    this->dictionaryNeutrino = dictionaryNeutrino;
 }
 
 void NeutrinoPhotonInteraction::performInteraction(Candidate *candidate) const {
@@ -77,14 +95,87 @@ void NeutrinoPhotonInteraction::performInteraction(Candidate *candidate) const {
     // static const double mass_W = 80.377 * 1e9 * 1.602176487e-19 *  (2.99792458e-2 * 1e-16) * kilogram;
     double z = candidate->getRedshift();
     double E = candidate->current.getEnergy() * (1 + z);
-    double Ee = (E - mass_W * c_squared);
+    double ID = candidate->current.getID();
+    
+    double leptonE = (E - (mass_W + mass_electron) * c_squared); // to adjust according to the ID!
+    int leptonID;
+    
+    if (ID > 0.) {
+        leptonID = ID + 1;
+    } else {
+        leptonID = ID - 1;
+    }
 
     Random &random = Random::instance();
     Vector3d pos = random.randomInterpolatedPosition(candidate->previous.getPosition(), candidate->current.getPosition());
     
     if (haveSecondaries)
-        candidate->addSecondary(11, Ee / (1 + z), pos, w, interactionTag);
-        // candidate->addSecondary()
+        candidate->addSecondary(leptonID, leptonE / (1 + z), pos, w, interactionTag);
+        //candidate->addSecondary()
+}
+
+std::vector<double> NeutrinoPhotonInteraction::getTabulatedEnergy(int ID) {
+    
+    int indexInteraction;
+    
+    if (abs(ID) == 12) {
+        interaction = "NeutrinoElectronPhotonInteraction"
+        for (const auto& pair : this->neutrinoDictionary) {
+                if (pair.second == interaction) {
+                    indexInteraction = pair.first;
+                    break;
+                }
+        }
+    } else if (abs(ID) == 14) {
+        interaction = "NeutrinoMuonPhotonInteraction"
+        for (const auto& pair : this->neutrinoDictionary) {
+                if (pair.second == interaction) {
+                    indexInteraction = pair.first;
+                    break;
+                }
+        }
+    } else {
+        interaction = "NeutrinoTauPhotonInteraction"
+        for (const auto& pair : this->neutrinoDictionary) {
+                if (pair.second == interaction) {
+                    indexInteraction = pair.first;
+                    break;
+                }
+        }
+    }
+    return this->tabEnergy[indexInteraction];
+}
+
+std::vector<double> NeutrinoPhotonInteraction::getTabulatedRate(int ID) {
+    
+    int indexInteraction; // think about initialising to a random value, i.e. 5
+    
+    if (abs(ID) == 12) {
+        interaction = "NeutrinoElectronPhotonInteraction"
+        for (const auto& pair : this->neutrinoDictionary) {
+                if (pair.second == interaction) {
+                    indexInteraction = pair.first;
+                    break;
+                }
+            }
+    } else if (abs(ID) == 14) {
+        interaction = "NeutrinoMuonPhotonInteraction"
+        for (const auto& pair : this->neutrinoDictionary) {
+                if (pair.second == interaction) {
+                    indexInteraction = pair.first;
+                    break;
+                }
+            }
+    } else {
+        interaction = "NeutrinoTauPhotonInteraction"
+        for (const auto& pair : this->neutrinoDictionary) {
+                if (pair.second == interaction) {
+                    indexInteraction = pair.first;
+                    break;
+                }
+            }
+    }
+    return this->tabRate[indexInteraction];
 }
 
 void NeutrinoPhotonInteraction::process(Candidate *candidate) const
@@ -92,12 +183,16 @@ void NeutrinoPhotonInteraction::process(Candidate *candidate) const
     // To enable parallelization, the modules have to be stateless - the
     // process method should thus not modify internal variables!
     //std::cout << "NeutrinoPhotonInteraction::Module::process() called\n";
-    if (candidate->current.getId() != 12)
-        return;
-   
     // scale the electron energy instead of background photons
     double z = candidate->getRedshift();
     double E = (1 + z) * candidate->current.getEnergy();
+    double ID = candidate->current.getID();
+    
+    if (!(abs(ID) == 12 || abs(ID) == 12 || abs(ID) == 16))
+        return;
+   
+    std::vector<double> tabEnergy = getTabEnergy(ID);
+    std::vector<double> tabRate = getTabRate(ID);
 
     // check if in tabulated energy range
     if (E < tabEnergy.front() or (E > tabEnergy.back()))
@@ -114,7 +209,7 @@ void NeutrinoPhotonInteraction::process(Candidate *candidate) const
     if (step < randDistance) {
         candidate->limitNextStep(limit / rate);
         return;
-    } else { // after performing interaction photon ceases to exist (hence return)
+    } else { // after performing interaction neutrino ceases to exist (hence return)
         performInteraction(candidate);
         return;
     }
