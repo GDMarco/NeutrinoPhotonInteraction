@@ -95,12 +95,12 @@ void NeutrinoPhotonInteraction::performInteraction(Candidate *candidate) const {
     // static const double mass_W = 80.377 * 1e9 * 1.602176487e-19 *  (2.99792458e-2 * 1e-16) * kilogram;
     double z = candidate->getRedshift();
     double E = candidate->current.getEnergy() * (1 + z);
-    double ID = candidate->current.getID();
+    int ID = candidate->current.getID();
     
     double leptonE = (E - (mass_W + mass_electron) * c_squared); // to adjust according to the ID!
     int leptonID;
     
-    if (ID > 0.) {
+    if (ID > 0) {
         leptonID = ID + 1;
     } else {
         leptonID = ID - 1;
@@ -186,7 +186,7 @@ void NeutrinoPhotonInteraction::process(Candidate *candidate) const
     // scale the electron energy instead of background photons
     double z = candidate->getRedshift();
     double E = (1 + z) * candidate->current.getEnergy();
-    double ID = candidate->current.getID();
+    int ID = candidate->current.getID();
     
     if (!(abs(ID) == 12 || abs(ID) == 12 || abs(ID) == 16))
         return;
