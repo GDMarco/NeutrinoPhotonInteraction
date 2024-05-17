@@ -101,9 +101,9 @@ void NeutrinoPhotonInteraction::performInteraction(Candidate *candidate) const {
     int leptonID;
     
     if (ID > 0) {
-        leptonID = ID + 1;
-    } else {
         leptonID = ID - 1;
+    } else {
+        leptonID = ID + 1;
     }
 
     Random &random = Random::instance();
