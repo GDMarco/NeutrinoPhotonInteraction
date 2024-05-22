@@ -6,6 +6,7 @@
 /// project, just send us: (name of the plugin, short description, url)
 #include <fstream>
 #include <cmath>
+#include <unordered_map>
 
 #include <crpropa/Module.h>
 #include "crpropa/PhotonBackground.h"
@@ -22,12 +23,15 @@ private:
     
     std::string interactionTag = "NGI";
     
-    std::vector<double> tabEnergy; //!< neutrino energy in [J]
-    std::vector<double> tabRate; //!< interaction rate in [1/m]
+    std::vector<std::vector<double>> tabEnergy; //!< neutrino energy in [J]
+    std::vector<std::vector<double>> tabRate; //!< interaction rate in [1/m]
     
-    std::vector<double> tabE; //!< neutrino energy in [J]
-    std::vector<double> tabs; //!< s_kin = s - m^2 in [J**2**]
-    std::vector<std::vector<double>> tabCDF; //!< cumulative interaction rate
+    std::vector<std::vector<double>> tabE; //!< neutrino energy in [J]
+    std::vector<std::vector<double>> tabs; //!< s_kin = s - m^2 in [J**2**]
+    std::vector<std::vector<std::vector<double>>> tabCDF; //!< cumulative interaction rate
+    
+    std::unordered_map<int, std::string> dictionaryNeutrino;
+    
 public:
     /// The parent's constructor need to be called on initialization!
     NeutrinoPhotonInteraction(ref_ptr<PhotonField> photonField, bool haveSecondaries = false, double limit = 0.1); //double thinning = 0,
@@ -57,7 +61,10 @@ public:
     void setInteractionTag(std::string tag);
     std::string getInteractionTag() const;
     
-    void initRate(std::string filename);
+    void initRate(std::string fname);
+    
+    std::vector<double> getTabulatedEnergy(int ID);
+    std::vector<double> getTabulatedRate(int ID);
     
     void process(Candidate *candidate) const;
     void performInteraction(Candidate *candidate) const;
