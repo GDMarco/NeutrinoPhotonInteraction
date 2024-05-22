@@ -35,6 +35,8 @@ using namespace std;
 #define SMOOTH 0
 #define LAST 4
 #define SEED 0
+// Lower evaluations for warmup
+#define MINEVAL_WU 10000
 #define MINEVAL 50000
 //#define MAXEVAL 4000000000
 #define MAXEVAL 5e8//1800000000
@@ -68,7 +70,7 @@ std::array<double,2> integration::vegasC4(int f(const int *ndim, const cubareal 
   #undef GRIDNO
   #undef STATEFILE
   #undef MAXEVAL
-  #define NSTART 500000
+  #define NSTART 1e4
   #define NINCREASE 0//100000
   #define GRIDNO gridnum
   #define STATEFILE ""
@@ -81,18 +83,18 @@ std::array<double,2> integration::vegasC4(int f(const int *ndim, const cubareal 
   // #define RETAINSTATEFILE TRUE
   Vegas(NDIM, NCOMP, f, data, NVEC,
     wu_prec, EPSABS, VERBOSE+SMOOTH, iseed,
-    MINEVAL, MAXEVAL, NSTART, NINCREASE, NBATCH,
+    MINEVAL_WU, MAXEVAL, NSTART, NINCREASE, NBATCH,
     GRIDNO, STATEFILE, SPIN,
     &neval, &fail, wu_integral, wu_error, wu_prob);
   cout << endl << "Warm-up run comlete, now performing final integration" << endl;
   #undef NSTART
   #undef NINCREASE
-  #define NSTART 1e6
-  #define NINCREASE 0//1000000
+  #define NSTART 2e4
+  #define NINCREASE 100000//1000000
   cubareal integral[1], error[1], prob[1]; 
   Vegas(NDIM, NCOMP, f, data, NVEC,
     prec, EPSABS, VERBOSE+SMOOTH, iseed,
-    MINEVAL, MAXEVAL, NSTART, NINCREASE, NBATCH,
+    MINEVAL_WU, MAXEVAL, NSTART, NINCREASE, NBATCH,
     GRIDNO, STATEFILE, SPIN,
     &neval, &fail, integral, error, prob);   
   cout << endl << "Production-up run comlete" << endl;

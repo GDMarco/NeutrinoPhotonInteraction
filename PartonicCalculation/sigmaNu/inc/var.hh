@@ -2,6 +2,7 @@
 #include <cmath>
 #include <complex>
 #include <array>
+#include <map>
 
 // Introduce custom typedef for switching precision
 typedef double real_type;
@@ -39,9 +40,12 @@ namespace Variables {
 	const double mm = 105.65837e-3;
 	const double mtau = 1.77686;
 	// quarks
+	const double md = 0.0;
+	const double mu = 0.0;
 	const double mc = 1.51;
 	const double mb = 4.92;
 	const double mt = 173.0;
+	const double ms = 200.0;
 	//Nucleons
 	const double mp = 0.9382720813;
 	const double mn = 0.9395654133;
@@ -67,6 +71,9 @@ namespace Variables {
 	// Global variables
 	extern double Ecms, Ecms2, Enu;
 
+	// Function to get fermion mass based on pdg number
+	double get_mass_fermion_pdg( int );
+
 	// Function to print the global settings
 	void print_settings();
 
@@ -76,17 +83,18 @@ namespace Variables {
 	// Function to initiate different EW schemes
 	void init_scheme(int);
 
+	// Function to initiate Recola settings
+	void init_recola();
+
 	// Function that will write the program settings to a text file (passed by reference)
 	void write_settings(std::ofstream &, const std::string, std::string process = std::string() );
 
 	// Boolean for neutrino pdg code
 	bool is_neutrino(int);
 
-	// Update process and dimensions
-	void update_process(int*);
 	// Global variable to control integration dimensions of integrands	
 	extern int cuba_dimensions;
-	// Function to assign the global variable based on proc, correction and hvq options
+	// Function to assign the global variable based on channel selection
 	void update_process_dimensions();
 
 	// -1 = fixed scale, 1 = et_V
@@ -95,10 +103,12 @@ namespace Variables {
 	extern double mu0;
 	// mu for loop integrals
 	extern double mu_loop;
-	// automatically include I-operator in virtual evaluations
-	extern bool active_Iop;
+	// When computing viritual corrections for specific channels
+	extern bool active_virtual;
+	extern bool active_recola;
 	// Multiplication for mu_0 scale
 	extern double muf_var, mur_var;
+
 
 	// Strong coupling
 	extern double ALPHAS;
@@ -112,13 +122,25 @@ namespace Variables {
 	extern int nf_pdf, nf_as; // Number of active flavours in pdf/alphas running
 
 	// Some process-dependent and channel dependent options
-	extern std::string s_process, s_target, s_projectile;
-	extern std::string s_correction; // LO, R, V, VV, RV, RR
+	// extern std::string s_process, s_target, s_projectile;
+	// extern std::string s_correction; // LO, R, V, VV, RV, RR
 
 	//// Any cuts on final-state?
 	// pT of neutrino
 	extern bool active_pTnu_min,	active_pTnu_max;
 	extern double pTnu_min, 		pTnu_max;
+
+	// Function to initialise Recola processes
+	void init_channels();
+	// Prints channel information
+	void print_channels();
+
+
+	extern int channel, pdg_projectile, pdg_fermion;
+	void init_recola_processes();
+	// Construct a map between process strings and integers
+	extern std::map<int,std::string> process_map;
+	extern std::map<int,std::string> process_map_rcl;
 
 }  
 

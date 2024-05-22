@@ -5,6 +5,8 @@ GSL_PATH = $(shell gsl-config --prefix)
 LHAPDF_PATH = $(shell lhapdf-config --prefix)
 # CUBA path
 CUBA_PATH = $(shell cuba-config --prefix)
+# Recola path
+RECOLA_PATH = /Users/rhorry/Research/recola2-collier-2.2.4/recola2-2.2.4
 # your CUBA 4.0 path (testing: /usr/local/Cuba-4.0)
 # CUBA_PATH = /Users/rhorry/Research/BUILDS/CUBA/
 
@@ -25,6 +27,12 @@ endif
 ifneq "$(LHAPDF_PATH)" "" 
 INCLUDE_PATH +=  -I$(shell lhapdf-config --incdir)
 LIBS_PATH += $(shell lhapdf-config --libs)
+endif
+
+# For external |M|^2 from Recola
+ifneq "$(RECOLA_PATH)" ""
+INCLUDE_PATH += -I$(RECOLA_PATH)/include
+LIBS_PATH += -L$(RECOLA_PATH) -lrecola
 endif
 
 # Note cuba-config not released with installation, i created my own

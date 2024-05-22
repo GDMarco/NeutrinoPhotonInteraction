@@ -24,18 +24,6 @@ using namespace Variables;
 // pdf_info pdf_cache;
 int seed_cache;
 int grid_cache = 2;
-// Update this
-int pdg_cache[4] = {0};
-
-
-// Better interface:
-// pdg of p1
-// pdg of p2
-// pdg of p3
-// pdg of p4
-
-// If pdg of p2 (the target) is a neutrino its 2to2, or photon 2to3
-// due to charge conservation, pdg of p5 is always known from this
 
 // Write more user-friendly command line reader
 void print_usage() {
@@ -44,29 +32,26 @@ void print_usage() {
 		<< " -s --seed			<s>		seed number for integration\n"
 		<< " -o --iobs			<o>		potentially if we consider some specific observeables or channel?\n"
 		// Then the PDG of particles 1,2,3,4
-		<< " -a --pdg_a			<a>		pdg of particle a(p1)\n" 
-		<< " -b --pdg_b			<a>		pdg of particle b(p2)\n"
-		<< " -c --pdg_c			<a>		pdg of particle c(p3)\n"
-		<< " -d --pdg_d			<a>		pdg of particle d(p4)\n"
+		<< " -p --pdg_1			<p>		pdg of (anti)neutrino projecile\n" 
+		<< " -f --pdg_4			<f>		pdg of fermion 4, fixes masses, couplings etc.\n"
+		<< " -c --chan			<c>		channel selection\n"
 		<< endl;
 	exit(0);
 	return;
 }
 
 // Introduce a more user friendly interface
-void read_arguments(int argc, char* argv[], int &seed, int &iobs, int pdgs[4] ) {
+void read_arguments(int argc, char* argv[], int &seed, int &iobs, int &ichan, int &flav_1, int &flav_4) {
 	// provide it length 4 integer array for PDG codes (these must all be entered)
-	const char* const short_options = "s:o:a:b:c:d:";
+	const char* const short_options = "s:o:p:f:c:";
 	const struct option long_options[] = { { "help", 0, NULL, 'h' },
 		   { "seed", 1, NULL,  's' },
 		   { "iobs", 1, NULL,  'o' },
-		   { "pdg_a",1, NULL,  'a' },
-		   { "pdg_b",1, NULL,  'b' },
-		   { "pdg_c",1, NULL,  'c' },
-		   { "pdg_d",1, NULL,  'd' },		   		   		   
+		   { "pdg_1",1, NULL,  'p' },
+		   { "pdg_4",1, NULL,  'f' },
+		   { "chan", 1, NULL,  'c' },
 		   { NULL, 0, NULL, 0 } };
 	int next_option;
-	ostringstream s_corr, s_proj, s_targ;	
 	do {
 		next_option = getopt_long (argc, argv, short_options, long_options, NULL);
 		switch (next_option) {
@@ -76,19 +61,15 @@ void read_arguments(int argc, char* argv[], int &seed, int &iobs, int pdgs[4] ) 
 			case 'o':
 				iobs = stoi(optarg, NULL);
 				break;
-			// PDG for p1, p2, p3, p4
-			case 'a':
-				pdgs[0] = stoi(optarg, NULL);
-				break;
-			case 'b':
-				pdgs[1] = stoi(optarg, NULL);
-				break;
 			case 'c':
-				pdgs[2] = stoi(optarg, NULL);
+				ichan = stoi(optarg, NULL);
+				break;				
+			case 'p':
+				flav_1 = stoi(optarg, NULL);
 				break;
-			case 'd':
-				pdgs[3] = stoi(optarg, NULL);
-				break;																
+			case 'f':
+				flav_4 = stoi(optarg, NULL);
+				break;															
 			case '?':
 				print_usage();
 			case -1: break;
@@ -105,50 +86,67 @@ void read_arguments(int argc, char* argv[], int &seed, int &iobs, int pdgs[4] ) 
 int Vegas_Interface(const int *ndim, const cubareal xx[],
   const int *ncomp, cubareal ff[], void *userdata) {
 	// The integrand value (thing to be integrated), initialise to zero
-	double dsigma_summed(0.);
 
-	if( s_projectile != "nu" and s_projectile != "nux" ){
-		cerr << "Vegas_Interface:: unknown projectile = " << s_projectile << endl;
-		abort();
-	}
+	double dsigma_summed(0.);
 
 	// Define some variables to control the phase-space and random variable setup
 	int nrandom(0); // No additional integrations required for parton level computations
 
 	// 2to3 if target is a photon, otherwise 2to2
-	int nfinal = ( s_target == "gamma" )? 3: 2;
+	int nfinal = ( channel > 100 )? 3: 2;
 
 	// Create array of masses of final state particles
 	double masses[nfinal] = {0.};
 
-	// Assign masses based on secondaries
-	// For now change them to muon mass?
-	if( nfinal == 3 ){
-		masses[1] = 0.1;
-		masses[2] = 0.1;
+	// For two-to-two scattering set the outgoing fermion mass if relevant
+	if( nfinal == 2 ){
+		double m_fermion = get_mass_fermion_pdg( pdg_fermion );
+		masses[0] = m_fermion;
+		masses[1] = m_fermion;
 	}
 
-	// Assign these particle masses according to the subprocess (i.e. the channel list)
-	// For now take them to be massless
+	// Assign masses based channel selection
+	// For now fix to muon mass
+	if( nfinal == 3 ){
+		// Collect the mass information on the outgoing fermion
+		double m_fermion = get_mass_fermion_pdg( pdg_fermion );
+
+		// The channel break down is:
+		// 101-105: nu gamma > neutrino f fbar [NC type]
+		if( channel < 105 ){
+			masses[0] = 0.0;
+			masses[1] = m_fermion;
+			masses[2] = m_fermion;
+		}
+		// 105+: nu gamma > lepton f f'~ [where f,f' may be quarks or leptons]
+		// if f f'~ are quarks, ignore masses
+		// if f f~ are leptons, include charged lepton mass effects
+		else{
+			// Get the mass of lepton particle 3 (it is correlated with the incoming neutrino flavour)
+			// Particle 3 = the charged lepton mass correlated with initial neutrino flavour
+			double m_3 = get_mass_fermion_pdg( abs(pdg_projectile)-1 );
+			// If particle 4,5 are quarks ignore masses
+			double m_4 = 0.0;
+			double m_5 = 0.0;
+			// If particle 4 is a neutrino, include charged lepton mass
+			if( is_neutrino( pdg_fermion) ){
+				// e.g. electron neutrino (pdg = 12), electron (pdg = 11)
+				m_5 = get_mass_fermion_pdg( abs(pdg_fermion)-1 );
+			}
+			masses[0] = m_3;
+			masses[1] = m_4;
+			masses[2] = m_5;
+		}
+	}
 
 	// Create phase-space
 	KinematicData Kin = Generate_Phase_Space( xx, nfinal, masses, nrandom, "ee" );
-	// Manually set as(muR) probably not needed
+	// Manually set as(muR) currently not used
 	Kin.set_as_mur( 0.118 );
 
-	// At this stage, assign the pdg numbers to the data structure
-	if( s_target == "nu" or s_target == "nux" ){
-		// 2 > 2 (anti)neutrino [anti]neutrino scattering
-		dsigma_summed = dsigma_nu( Kin, pdg_cache );
-		
-	}
-	else if( s_target == "gamma" ){
-		// 2 > 3 (anti)neutrino photon scattering
-		dsigma_summed = dsigma_gamma( Kin, pdg_cache );
-	}
 
-
-	// ...
+	// New function ordered by channels (integers)
+	dsigma_summed = dsigma_channels( Kin, channel );
 
 	// Return the (integrand) differential cross-section in pb
 	ff[0] = dsigma_summed * hbarc2;
@@ -164,11 +162,11 @@ int main(int argc, char *argv[])
 	if( argc < 2 ) print_usage();
   // Initialise program defaults
 	init_default();
+	// Some default values
+	channel = 1;
+	pdg_projectile = 12;
+	pdg_fermion = 12;
 
-	// Set up specific values for some global definitions
-	s_process = ""; 	// heavy-quark pair production
-	s_target  = "nu"; 		// Options: nu, nux, gamma
-	s_projectile = "nu";
   // Initialise some process specific scales/variables
 	scale_opt = -1;
 	// Scale options
@@ -178,27 +176,37 @@ int main(int argc, char *argv[])
 	mu_loop = 100.;	// No results depend on mu_reg value
 
 	// Set the collision environment (pp collisions at LHC 13 TeV)
-	Ecms = 20.0;
+	Ecms = 100.0;
 	Ecms2 = pow(Ecms,2);
 
 	int isetup(0); // If we perhaps want to select some specific processes
 
+	// Initialise the channels
+	init_channels();
+
+	// Print available channels
+	print_channels();
 
 	// Now read the specific set of command line arguments
-	read_arguments(argc,argv,seed_cache,isetup,pdg_cache);
+	read_arguments(argc,argv,seed_cache,isetup,channel,pdg_projectile,pdg_fermion);	
 
-	// Process registration
-	cout << "Process registration\n"
-		<< "p(1,pdg="<<pdg_cache[0]<<") + "
-		<< "p(2,pdg="<<pdg_cache[1]<<") > "
-		<< "p(3,pdg="<<pdg_cache[2]<<") + "
-		<< "p(4,pdg="<<pdg_cache[3]<<")\n";
+	// Update cuba dimensions according to the process
+	update_process_dimensions();
 
-	// Update target and projectile names, and cuba dimensions
-	update_process( pdg_cache );
+	// Manually set this for now
+	active_virtual = false;
+	active_recola = false;
 
 	// Print main program settings
 	print_settings();
+
+	// Initialise recola settings
+	init_recola();
+
+	// Initialises the process registration and constructs <int,str> map
+	init_recola_processes();
+
+	// abort();
 
 	////////////
 	// Setups //
@@ -221,14 +229,20 @@ int main(int argc, char *argv[])
 	grid_cache = grid_no;
 	int max_evaluations = 1e7;
 
+	// When evaluating virtual corrections, work with reduced precision for NLO coefficient
+	if( active_virtual ){
+		warmup_precision = 1e-1;
+		integration_precision = 1e-2;
+	}
+
 	//////////////////////////////
 	// Store cross-section data //
 	//////////////////////////////
 	const std::string s_analysis[2] = {"sigma","sigma_Ecms"};
-  string outfile = s_analysis[isetup]+"_" + s_projectile + "_" + s_target;
+  string outfile = s_analysis[isetup]+"_channel"+to_string(channel);
   ofstream ofile_results;
   ofile_results.open(outfile+"_s"+to_string(seed_cache)+".txt");
-	write_settings(ofile_results,"no pdfs",s_process);
+	write_settings(ofile_results,"no pdfs","");
 
 	/////////////////
 	// Start timer //

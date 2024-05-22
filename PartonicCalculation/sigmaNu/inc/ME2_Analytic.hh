@@ -2,6 +2,7 @@
 #include <cmath>
 #include <complex>
 #include "tools.hh"
+#include "recola.hpp"
 
 // Declaration of all ME2 functions
 namespace ME2_Analytic {
@@ -32,16 +33,22 @@ namespace ME2_Analytic {
     extern double nu1gamma_nu1f2f2x(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin, int f1, int f2);
 
     // Charged Current exchange
-    // nu1 + photon > l1 + fermions
-    // seperate functions for quarks and leptons?
-    // nu1gamma_l1lepton
-    // nu1gamma_l1quarks
+
+    // nu + photon > nu + f fbar [fermion line can be quarks or charged leptons]
+    extern double nu1gamma_l1qqbar(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin, int f1, int f2);
+
+    // nu1 + photon > l1 + nul + lx [different flavour leptons]
+    extern double nu1gamma_l1nu2l2x(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin, int f1, int f2);
 
 
+    // nu1 + photon > l1 + nul1 + l1x [same flavour leptons]
+    extern double nu1gamma_l1nu1l1x(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin, int f1, int f2);
 
 
+    // Recola interface
+    extern double compute_process_recola(KinematicData &Kin, int proc, bool virt);
 
-
+    // Perhaps update to provide it with fixed length array?
 
 
     // The below functions were used only for testing the crossing relations

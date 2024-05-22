@@ -7,3 +7,8 @@
 extern double dsigma_nu( KinematicData &, const int* );
 
 extern double dsigma_gamma( KinematicData &, const int* );
+
+
+
+// 
+extern double dsigma_channels(KinematicData &, int );
