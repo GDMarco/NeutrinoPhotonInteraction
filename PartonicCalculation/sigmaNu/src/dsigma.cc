@@ -175,13 +175,17 @@ double dsigma_channels( KinematicData &Kin, int channel_id ){
                 // 9) nu1 + nu1bar > nu2 + nu2bar
                 else if( channel_id == 9  ) ME2 = ME2_Analytic::nunux_ffx(1,2,3,4, Kin, 12, 14);
                 // 10) nu1 + nu1bar > l1 + l1bar (provide outgoing fermion PDG)
-                else if( channel_id == 10 ){
-                        cerr << "implement the NC + CC for nu1 + nu1bar > l1 + l1bar scattering\n";
-                        abort();
-                        ME2 = ME2_Analytic::nu1nu1_nu1nu1(3,2,1,4, Kin, pdg_projectile, pdg_fermion);
-                }
+                else if( channel_id == 10 ) ME2 = ME2_Analytic::nu1nu1bar_l1l1bar(1,2,3,4, Kin, pdg_projectile, pdg_fermion);
                 // 11) nu1 + nu1bar > f + fbar (provide outoing fermion PDG)
-                else if( channel_id == 11 ) ME2 = ME2_Analytic::nunux_ffx(1,2,3,4, Kin, pdg_projectile, pdg_fermion);
+                else if( channel_id == 11 ) ME2 = ME2_Analytic::nu1nu2bar_l1l2bar(1,2,3,4, Kin, pdg_projectile, pdg_fermion);
+                //
+                else if( channel_id == 12 ) ME2 = ME2_Analytic::nunux_ffx(1,2,3,4, Kin, pdg_projectile, pdg_fermion);
+                //
+                else if( channel_id == 13 ) ME2 = ME2_Analytic::nugumma_Wl(1,2,3,4, Kin);
+                //
+                else if( channel_id == 14 ) ME2 = ME2_Analytic::nugumma_Wl(1,2,3,4, Kin);                                                                
+
+
                 //
                 // Channels 101+
                 // 101) nu_1 gamma -> nu_1 l_2 l_2~
@@ -213,7 +217,7 @@ double dsigma_channels( KinematicData &Kin, int channel_id ){
         }
 
         // For performing phase-space point tests of the squared amplitudes
-        bool check_recola = false;
+        bool check_recola = true;
         // Phase-space point test against recola
         if( check_recola and !active_recola ){
                 cout << "channel = " << channel << endl;

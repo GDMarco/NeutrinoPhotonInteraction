@@ -45,7 +45,7 @@ namespace Variables {
 	const double mc = 1.51;
 	const double mb = 4.92;
 	const double mt = 173.0;
-	const double ms = 200.0;
+	const double ms = 0.2;
 	//Nucleons
 	const double mp = 0.9382720813;
 	const double mn = 0.9395654133;
@@ -87,7 +87,7 @@ namespace Variables {
 	void init_recola();
 
 	// Function that will write the program settings to a text file (passed by reference)
-	void write_settings(std::ofstream &, const std::string, std::string process = std::string() );
+	void write_settings(std::ofstream &, std::string extra_info);
 
 	// Boolean for neutrino pdg code
 	bool is_neutrino(int);

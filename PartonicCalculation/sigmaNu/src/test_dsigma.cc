@@ -36,6 +36,8 @@ void print_usage() {
 		<< " -f --pdg_4			<f>		pdg of fermion 4, fixes masses, couplings etc.\n"
 		<< " -c --chan			<c>		channel selection\n"
 		<< endl;
+	// Supported channels
+	print_channels();
 	exit(0);
 	return;
 }
@@ -103,6 +105,18 @@ int Vegas_Interface(const int *ndim, const cubareal xx[],
 		double m_fermion = get_mass_fermion_pdg( pdg_fermion );
 		masses[0] = m_fermion;
 		masses[1] = m_fermion;
+
+		// Special cases
+		//channel 12: nu1 + nu2bar > l1 l2bar
+		if( channel == 11 ){
+			// Find mass of l1 from correlation with the neutrino projectile
+			masses[0] = get_mass_fermion_pdg( abs(pdg_projectile)-1 );
+		}
+		//channels 13,14: nu + gamma > W l
+		else if( channel == 13 or channel == 14 ){
+			masses[0] = mw;
+			masses[1] = m_fermion;
+		}
 	}
 
 	// Assign masses based channel selection
@@ -159,6 +173,8 @@ int Vegas_Interface(const int *ndim, const cubareal xx[],
 // we can supply it with some inputs at command line (lets just use integers)
 int main(int argc, char *argv[])
 {
+	// Initialise the channels
+	init_channels();
 	if( argc < 2 ) print_usage();
   // Initialise program defaults
 	init_default();
@@ -181,9 +197,6 @@ int main(int argc, char *argv[])
 
 	int isetup(0); // If we perhaps want to select some specific processes
 
-	// Initialise the channels
-	init_channels();
-
 	// Print available channels
 	print_channels();
 
@@ -192,10 +205,6 @@ int main(int argc, char *argv[])
 
 	// Update cuba dimensions according to the process
 	update_process_dimensions();
-
-	// Manually set this for now
-	active_virtual = false;
-	active_recola = false;
 
 	// Print main program settings
 	print_settings();
@@ -206,8 +215,6 @@ int main(int argc, char *argv[])
 	// Initialises the process registration and constructs <int,str> map
 	init_recola_processes();
 
-	// abort();
-
 	////////////
 	// Setups //
 	////////////
@@ -216,7 +223,7 @@ int main(int argc, char *argv[])
 		cout << "Inclusive cross-section at fixed Ecms = " << Ecms << endl;
 	}
 	else if( isetup == 1 ){
-		cout << "Inclusive cross-section for a scan in Ecms\n";
+		cout << "Inclusive cross-section for an energy scan in Ecms\n";
 	}
 
 
@@ -238,11 +245,13 @@ int main(int argc, char *argv[])
 	//////////////////////////////
 	// Store cross-section data //
 	//////////////////////////////
-	const std::string s_analysis[2] = {"sigma","sigma_Ecms"};
+	const std::string s_analysis[2] = {"SigmaIncl","SigmaIncl_Ecms"};
   string outfile = s_analysis[isetup]+"_channel"+to_string(channel);
   ofstream ofile_results;
+  // open file
   ofile_results.open(outfile+"_s"+to_string(seed_cache)+".txt");
-	write_settings(ofile_results,"no pdfs","");
+  // save general program settings
+	write_settings(ofile_results,"");
 
 	/////////////////
 	// Start timer //
@@ -251,7 +260,7 @@ int main(int argc, char *argv[])
   gettimeofday(&t0,NULL);
 
   // Fiducial results for isetup < 3
-  if( isetup < 2 ){
+  if( isetup == 0 ){
 		// Run a test integral, returns an array with two entries < integral, error >, accessed via test_setup[0] and test_setup[1] respectively.
 		array<double,2> sigma_fiducial = {0.};
 		//			
@@ -265,6 +274,40 @@ int main(int argc, char *argv[])
 		// Include a function which writes all relevant information to the text file
 		ofile_results << sigma_fiducial[0] << "\t" << sigma_fiducial[1] << endl;
 	}
+
+	// Set up the energy scan
+	if( isetup == 1 ){
+
+		// Either derive Ecms for a varying Enu, or directly fix Ecms
+		double Ecms_low = 10.0;
+		double Ecms_high = 1e5;
+		// Number of bins to consider
+		int n_bins = 30;	
+		vector<double> Ecms_values = linspace( log(Ecms_low),log(Ecms_high), n_bins);
+		// ^^^^^^^^^^^^^^^^^^^^^^^
+		// Above to be adjusted to match values required by Gaetano	
+
+		// Vector to store the computed cross-section
+		vector< array<double,2> > sigma;
+		for( int i(0); i < n_bins; i++ ){
+			// Select Ecms
+			Ecms = exp(Ecms_values[i]);
+			Ecms2 = pow(Ecms,2);
+			// Compute the cross-section
+			array<double,2> sigma_incl = integration::vegasC4(Vegas_Interface, warmup_precision, integration_precision, cuba_dimensions, NULL, seed_cache, grid_cache, max_evaluations );
+			// Save the results in the vector
+			sigma.push_back( sigma_incl );
+		}
+
+		ofile_results << "# Ecms\tsigma[pb]\tsigma_error[pb]\n";
+		// Write the results to the file
+		for( unsigned int i=0; i < sigma.size(); i++ ){
+		// for( auto i: sigma ){
+			array<double,2> sig = sigma[i];
+			ofile_results << exp(Ecms_values[i]) << "\t"	<< sig[0] << "\t" << sig[1] << endl;
+		}		
+	}
+
 
 	ofile_results.close();
 

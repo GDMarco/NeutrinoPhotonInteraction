@@ -177,7 +177,6 @@ void Variables::init_recola(){
 	Recola::set_pole_mass_strange_rcl(0.0);
 	Recola::set_pole_mass_strange_rcl(0.0);
 	// When to ignore fermion masses
-
 	Recola::set_light_fermions_rcl(0.5*me);
 
 	Recola::set_complex_mass_scheme_rcl();
@@ -214,14 +213,20 @@ void Variables::init_channels(){
 	process_map.emplace( 7, "nu_1~ nu_2 -> nu_1~ nu_2");
 	// 8) nu1bar + nu2bar > nu1bar + nu2bar
 	process_map.emplace( 8, "nu_1~ nu_2 -> nu_1~ nu_2");	
-
 	// neutrino annihilation channels (3 channels)
 	// 9) nu1 + nu1bar > nu2 + nu2bar
 	process_map.emplace( 9, "nu_1 nu_1~ -> nu_2 nu_2~");
 	// 10) nu1 + nu1bar > l1 + l1bar (provide outgoing fermion PDG)
 	process_map.emplace( 10, "nu_1 nu_1~ -> l_1 l_1~");	
+	// 11) nu1 + nu2bar > l1 + l2bar (provide PDG1 and PDG4 [l2bar flavour])
+	process_map.emplace( 11, "nu_1 nu_2~ -> l1 l2bar");
 	// 11) nu1 + nu1bar > f + fbar (provide outoing fermion PDG)
-	process_map.emplace( 11, "nu_1 nu_1~ -> f f~");
+	process_map.emplace( 12, "nu_1 nu_1~ -> f f~");		
+	// Onshell W processes
+	// 13) nu1 + gamma > W+ l-
+	process_map.emplace( 13, "nu_1 gamma -> W+ l_1");
+	// 14) nu1bar + gamma > W- l+
+	process_map.emplace( 14, "nu_1~ gamma -> W- l_1~");	
 
 	////////////////////
 	// 2to3 processes //
@@ -277,9 +282,15 @@ void Variables::init_channels(){
 	// 9) nu1 + nu1bar > nu2 + nu2bar
 	process_map_rcl.emplace( 9, "nu_e nu_e~ -> nu_mu nu_mu~");
 	// 10) nu1 + nu1bar > l1 + l1bar (provide outgoing fermion PDG)
-	process_map_rcl.emplace( 10, "nu_e nu_e~ -> e- e+");	
+	process_map_rcl.emplace( 10, "nu_tau nu_tau~ -> tau- tau+");	
 	// 11) nu1 + nu1bar > f + fbar (provide outoing fermion PDG)
-	process_map_rcl.emplace( 11, "nu_e nu_e~ -> mu- mu+");
+	process_map_rcl.emplace( 11, "nu_e nu_mu~ -> e- mu+");
+	// 12) nu1 + nu2bar > l1 + l2bar (provide outoing fermion PDG)
+	process_map_rcl.emplace( 12, "nu_e nu_e~ -> c c~");
+	// 13) nu1 + gamma > W+ l-
+	process_map_rcl.emplace( 13, "nu_mu gamma -> W+ mu-");
+	// 14) nu1bar + gamma > W- l+
+	process_map_rcl.emplace( 14, "nu_mu~ gamma -> W- mu+");	
 
 	// neutrino  + photon scattering NC exchanges (2 channels + c.c.)
 	// 101) nu1  + gamma > nu1 + l2 + l2bar
@@ -358,10 +369,36 @@ void Variables::init_recola_processes(){
 // A function that writes the settings of the program to a text file
 // i.e. the settings used for the computation
 
-void Variables::write_settings(ofstream &infile, const string pdfset, string process ){
+void Variables::write_settings(ofstream &infile, string process ){
+
+	// Save information on the electroweak scheme
+	infile << "# Program settings for SigmaNu\n";
+
+	// Electroweak inputs
+	infile << "# Electroweak scheme and input parameters\n";
+	infile << "# Scheme = Complex mass scheme\n";
+	infile << "# alpha_GF = " << setprecision(15) << ALPHA.real() << endl;
+	infile << "# Pole masses/widths for particles [GeV]\n";
+	infile << "# mw = " << mw << endl;
+	infile << "# gw = " << gw << endl;	
+	infile << "# mz = " << mz << endl;
+	infile << "# gz = " << gz << endl;
+	infile << "# s^2_thetaw (derived) = " << SW2 << endl;
+	// Fermion masses
+	infile << "# charged leptons\n";
+	infile << "# m_e = " << me << endl;
+	infile << "# m_m = " << mm << endl;	
+	infile << "# m_t = " << mtau << endl;
+	infile << "# quarks\n";
+	infile << "# m_d = " << md << endl;
+	infile << "# m_u = " << mu << endl;	
+	infile << "# m_s = " << ms << endl;
+	infile << "# m_c = " << mc << endl;
+	infile << "# m_b = " << mb << endl;	
+	infile << "# m_t = " << mt << endl;	
 
 	// Ecms
-	infile << "# Ecms = " << Ecms << endl;
+	// infile << "# Ecms = " << Ecms << endl;
 
 
 	return;

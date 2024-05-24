@@ -223,7 +223,64 @@ double ME2_Analytic::nu1nu2_nu1nu2(int i1, int i2, int i3, int i4, KinematicData
    return ME2.real();
 }
 
+// nu1 + nu1bar > l1 + l1bar
+double ME2_Analytic::nu1nu1bar_l1l1bar(int i1, int i2, int i3, int i4, KinematicData &Kin, int f1, int f2 ){
 
+	// Kinematics
+	double s12 = 2.0*Kin.pij(i1,i2);
+	double s13 = 2.0*Kin.pij(i1,i3);
+	double mfsq = Kin.p(i3).m2();
+
+	// f3, f4 a generic fermion line
+	complex<double> gLf, gRf; double Qf;
+	assign_EW_charges(Qf,gLf,gRf,abs(f2));	
+
+	complex<double> ME2 = -2.*ALPHA*conj(ALPHA)*pow(MW2C,-1)*pow(pi,2)*pow(MZ2C - s12,-1)*(conj(MW2C)*(s12 - conj(MZ2C) + 2.*conj(gLf)*conj(gLnu)*(mfsq - s13 - conj(MW2C))*conj(SW2))*
+      (mfsq*s12*(mfsq*(MZ2C - s12) + 4.*gLnu*gRf*MW2C*(-mfsq + MW2C + s13)*SW2) + 2.*MW2C*(MZ2C - s12 + 2.*gLf*gLnu*(-mfsq + MW2C + s13)*SW2)*pow(s12 - s13,2)) + 
+     (mfsq*s12 - mfsq*conj(MZ2C) + 4.*conj(gLnu)*conj(gRf)*(mfsq - s13 - conj(MW2C))*conj(MW2C)*conj(SW2))*
+      (mfsq*MW2C*s12*(MZ2C - s12 + 2.*gLf*gLnu*(-mfsq + MW2C + s13)*SW2) + 
+        ((4.*gLnu*gRf*MW2C*(MW2C + s13)*SW2 + mfsq*(MZ2C - s12 - 4.*gLnu*gRf*MW2C*SW2))*pow(s13,2))/2.))*pow(-mfsq + MW2C + s13,-1)*pow(SW2,-1)*
+   pow(mfsq - s13 - conj(MW2C),-1)*pow(conj(MW2C),-1)*pow(s12 - conj(MZ2C),-1)*pow(conj(SW2),-1);
+	return ME2.real();
+}
+
+// nu1 + nu2bar > l1 + l2bar
+double ME2_Analytic::nu1nu2bar_l1l2bar(int i1, int i2, int i3, int i4, KinematicData &Kin, int f1, int f2 ){
+	// Kinematics
+	double s12 = 2.0*Kin.pij(i1,i2);
+	double s13 = 2.0*Kin.pij(i1,i3);
+	double ml1sq = Kin.p(i3).m2();
+	double ml2sq = Kin.p(i4).m2();
+	complex<double> ME2 = ALPHA*conj(ALPHA)*(-2.*ml1sq*ml2sq*MW2C*s12 + ml1sq*ml2sq*(ml1sq - ml2sq - s13)*s13 - 2.*ml1sq*(ml2sq*s12 + 2.*MW2C*(s12 - s13))*conj(MW2C) + 
+     4.*MW2C*(s12 - s13)*(ml2sq - s12 + s13)*conj(MW2C))*pow(MW2C,-1)*pow(pi,2)*pow(-ml1sq + MW2C + s13,-1)*pow(SW2,-1)*pow(ml1sq - s13 - conj(MW2C),-1)*
+   pow(conj(MW2C),-1)*pow(conj(SW2),-1);
+	return ME2.real();
+}
+
+// nu1 + gamma > W+ + l1
+double ME2_Analytic::nugumma_Wl(int i1, int i2, int i3, int i4, KinematicData &Kin){
+
+	// Kinematics
+	double s12 = 2.0*Kin.pij(i1,i2);
+	double s13 = 2.0*Kin.pij(i1,i3);
+	double mw2r = pow(mw,2);
+	double mlsq = Kin.p(i4).m2();
+	complex<double> sw2 = SW2.real();
+	complex<double> ME2 = 8.*ALPHA*s12*conj(ALPHA)*conj(pow(sw2,-1/2.))*pow(mw2r,-1)*pow(pi,2)*
+   ((-mw2r - 2*s12 + s13)*pow(mlsq,3) + pow(mlsq,4) + pow(mlsq,2)*(2*mw2r*s12 - 3*pow(mw2r,2) + pow(s12 - s13,2)) - 
+     2*mw2r*(mw2r - s13)*(-2*mw2r*s12 + pow(mw2r,2) + pow(s12,2) + pow(s13,2)) + 
+     mlsq*(-((4*s12 + 3*s13)*pow(mw2r,2)) + 5*pow(mw2r,3) + s13*pow(s12 - s13,2) + mw2r*(6*s12*s13 + pow(s12,2) + pow(s13,2))))*pow(mlsq - mw2r + s13,-2)*
+   pow(mlsq - mw2r - s12 + s13,-2)*pow(sw2,-1/2.);
+// 	complex<double> ME2 = 4.*ALPHA*s12*conj(ALPHA)*conj(pow(SW2,-1/2.))*pow(MW2C,-1)*pow(pi,2)*pow(-mlsq + MW2C - s13,-1)*pow(-mlsq + MW2C + s12 - s13,-1)*
+   // ((-4*s12 + 2*s13)*pow(mlsq,3) + 2*pow(mlsq,4) + pow(mlsq,2)*(MW2C*s13 - 6.*pow(MW2C,2) + 2*pow(s12 - s13,2)) + 
+   //   2.*MW2C*((2*s12 + s13)*pow(MW2C,2) + 2*s13*(pow(s12,2) + pow(s13,2)) - MW2C*(3*s12*s13 + 2*pow(s12,2) + pow(s13,2))) - 
+   //   conj(MW2C)*((-4*s12 + s13)*pow(mlsq,2) + 2*pow(mlsq,3) + 2.*MW2C*(s13*(s12 + s13) - MW2C*(2*s12 + s13) + 2.*pow(MW2C,2)) + 
+   //      mlsq*(-(s12*s13) + MW2C*(2*s12 + s13) - 6.*pow(MW2C,2) + 2*pow(s12,2) + pow(s13,2))) + 
+   //   mlsq*(-((6*s12 + 5*s13)*pow(MW2C,2)) + 4.*pow(MW2C,3) + 2*s13*pow(s12 - s13,2) + MW2C*(11*s12*s13 + 4*pow(s12,2) + 3*pow(s13,2))))*pow(SW2,-1/2.)*
+   // pow(mlsq + s13 - conj(MW2C),-1)*pow(mlsq - s12 + s13 - conj(MW2C),-1);
+   // Photon averaging
+   return ME2.real() / 2.;
+}
 
 
 ////////////////////////////////////////////////
@@ -905,7 +962,7 @@ if( !is_neutrino(f1) ){
 	double s12 = 2.0*Kin.pij(i1,i2);
 	double s14 = 2.0*Kin.pij(i1,i4);	
 	double s23 = 2.0*Kin.pij(i2,i3);
-	double s25 = 2.0*Kin.pij(i2,i5);	
+	// double s25 = 2.0*Kin.pij(i2,i5);	
 	double s35 = 2.0*Kin.pij(i3,i5);		
 	double s45 = 2.0*Kin.pij(i4,i5);
 	// fermion masses

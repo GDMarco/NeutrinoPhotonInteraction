@@ -24,9 +24,17 @@ namespace ME2_Analytic {
     // All neutrino scattering configurations obtained from these two functions via crossings
 
 
+    // nu1 + nu1bar > l1 + l1bar
+    extern double nu1nu1bar_l1l1bar(int i1, int i2, int i3, int i4, KinematicData &Kin, int f1, int f2);
+    // nu1 + nu2bar > l1 + l2bar
+    extern double nu1nu2bar_l1l2bar(int i1, int i2, int i3, int i4, KinematicData &Kin, int f1, int f2);
+
     ////////////////////////////////////////////////
     // (anti)neutrino + photon scattering results //
     ////////////////////////////////////////////////
+
+    // On-shell W
+    extern double nugumma_Wl(int i1, int i2, int i3, int i4, KinematicData &Kin);
 
     // Neutral Current exchange
     // nu + photon > nu + f fbar [fermion line can be quarks or charged leptons]
