@@ -339,7 +339,7 @@ double ME2_Analytic::nu1gamma_nu1f2f2x(int i1, int i2, int i3, int i4, int i5, K
 	// Include mass for quarks. The f2 f2x quark system should also be at least as massive as pion
 	complex<double> chiz13 = 1. / ( MZ2C + s13 );
 	// alpha alpha*  (Re[alpha])
-	complex<double> prefactor = 128.*chiz13*gLnu*conj(chiz13)*conj(gLnu)*pow(pi,3)*pow(Qf,2)*pow(s24,-2)*pow(s25,-2)
+	complex<double> prefactor = 512.*chiz13*gLnu*conj(chiz13)*conj(gLnu)*pow(pi,3)*pow(Qf,2)*pow(s24,-2)*pow(s25,-2)
 	 * ALPHA * conj(ALPHA) * ALPHA.real();
 
 	complex<double> ME2 = (conj(gRf)*(2.*gLf*mfsq*s24*s25*(s12*(s24 + s25) + s13*(-s13 + s24 + s25) - pow(s12,2)) + 
@@ -364,12 +364,7 @@ double ME2_Analytic::nu1gamma_nu1f2f2x(int i1, int i2, int i3, int i4, int i5, K
 
 
 
-double ME2_Analytic::nu1gamma_l1qqbar(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin, int f1, int f2){
-
-	if( !is_neutrino(f1) ){
-		cerr << "nu1gamma_nu1f2f2x: fermion line 1 is not a neutrino\n";
-		abort();
-	}
+double ME2_Analytic::nu1gamma_l1qqbar(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin){
 
 	// Allow the analytic continuation for momenta 1 and 3 (i.e. for the massless neutrino line)
 	// Analytic continuation of momenta
@@ -594,8 +589,7 @@ double ME2_Analytic::nu1gamma_l1qqbar(int i1, int i2, int i3, int i4, int i5, Ki
                    s23*(-13*s45*pow(s35,2) - 8*pow(s35,3) + 8*s35*pow(s45,2) + 26*pow(s45,3)))) - 
              24*s23*pow(s45,4)))*pow(mw2c*conj(mw2c),1/2.))*pow(conj(pow(SW2,1/2.)),-2))/3.;
 
-	// Averaging over photon polarisations
-	prefactor /= 2.;
+	// Averaging over photon polarisations already included in pre-factor
 	// Include the prefactor and averaging/sum factors
 	ME2 *= prefactor;
 	return ME2.real();
@@ -603,12 +597,7 @@ double ME2_Analytic::nu1gamma_l1qqbar(int i1, int i2, int i3, int i4, int i5, Ki
 }
 
 
-double ME2_Analytic::nu1gamma_l1nu2l2x(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin, int f1, int f2){
-
-	if( !is_neutrino(f1) ){
-		cerr << "nu1gamma_nu1f2f2x: fermion line 1 is not a neutrino\n";
-		abort();
-	}
+double ME2_Analytic::nu1gamma_l1nu2l2x(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin){
 
 	// Using another basis of kinematics
 	double s12 = 2.0*Kin.pij(i1,i2);
@@ -967,8 +956,7 @@ double ME2_Analytic::nu1gamma_l1nu2l2x(int i1, int i2, int i3, int i4, int i5, K
                  2*s45*pow(s23,2) - pow(s23,3) - s23*(4*s35*s45 + 3*pow(s35,2) + 2*pow(s45,2)) + 
                  s14*(4*s23*s45 + 3*pow(s23,2) + pow(s35 + 2*s45,2))))))*pow(mw2c*conj(mw2c),1/2.));
 
-	// Averaging over photon polarisations
-	prefactor /= 2.;
+	// Averaging over photon polarisations already included
 	// Include the prefactor and averaging/sum factors
 	ME2 *= prefactor;
 	return ME2.real();
@@ -1070,7 +1058,7 @@ if( !is_neutrino(f1) ){
 	complex<double> ME2 = interference * prefac_interference;
 
 	// Add to it the results for |M_W^2|
-	double Mw_piece = nu1gamma_l1nu2l2x(i1,i2,i3,i4,i5,Kin,f1,f2);
+	double Mw_piece = nu1gamma_l1nu2l2x(i1,i2,i3,i4,i5,Kin);
 	// Then the |M_Z|^2, obtained from nu1gamma_nu1f2f2x (with leptons, and the momentum swap for neutrino position)
 	// i4 neutrino in third entry i3 (where it is defined for nu1gamma_nu1f2f2x)
 	double Mz_piece = nu1gamma_nu1f2f2x(i1,i2,i4,i3,i5,Kin,f1,abs(f2)-1);

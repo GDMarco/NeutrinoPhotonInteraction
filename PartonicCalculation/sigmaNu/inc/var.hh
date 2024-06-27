@@ -139,7 +139,7 @@ namespace Variables {
 	void init_channel_information(int, int *pdgs, double *masses);
 
 
-	extern int channel, pdg_projectile, pdg_fermion;
+	extern int channel, pdg_projectile;
 	void init_recola_processes();
 	// Construct a map between process strings and integers
 	extern std::map<int,std::string> process_map;

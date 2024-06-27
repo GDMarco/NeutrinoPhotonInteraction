@@ -33,6 +33,7 @@ void print_usage() {
 		<< " -a --iobs			<a>	(0 = fixed Ecms, 1 = Ecms scan)\n"
 		<< " -n --pdg_nu		<n>	pdg of (anti)neutrino projecile\n" 
 		<< " -c --chan			<c>	channel selection\n"
+		<< " -v --virt		  <v> virtual option for channels 1-9\n"
 		<< " -h --help			<h> print available channels "
 		<< endl;
 	exit(0);
@@ -40,14 +41,15 @@ void print_usage() {
 }
 
 // Introduce a more user friendly interface
-void read_arguments(int argc, char* argv[], int &seed, int &analysis, int &ichan, int &flav_nu) {
+void read_arguments(int argc, char* argv[], int &seed, int &analysis, int &ichan, int &flav_nu, bool &virt) {
 	// provide it length 4 integer array for PDG codes (these must all be entered)
-	const char* const short_options = "s:a:n:c:h:";
+	const char* const short_options = "s:a:n:c:v:h:";
 	const struct option long_options[] = { { "help", 0, NULL, 'h' },
 		   { "seed", 1, NULL,  's' },
 		   { "analysis", 1, NULL,  'a' },
 		   { "pdg_nu",1, NULL, 'n' },
 		   { "chan", 1, NULL,  'c' },
+		   { "virt", 1, NULL,  'v' },		   
 		   { NULL, 0, NULL, 0 } };
 	int next_option;
 	do {
@@ -64,6 +66,9 @@ void read_arguments(int argc, char* argv[], int &seed, int &analysis, int &ichan
 				break;				
 			case 'n':
 				flav_nu = stoi(optarg, NULL);
+				break;
+			case 'v':
+				virt = stoi(optarg, NULL);
 				break;
 			case 'h':
 				print_channels();
@@ -117,6 +122,7 @@ int Vegas_Interface(const int *ndim, const cubareal xx[],
 	// New function ordered by channels (integers)
 	dsigma_summed = dsigma_channels( Kin, channel );
 
+	// abort();
 	// Return the (integrand) differential cross-section in pb
 	ff[0] = dsigma_summed * hbarc2;
 	return 0;
@@ -135,8 +141,6 @@ int main(int argc, char *argv[])
 	// Some default values
 	channel = 1;
 	pdg_projectile = 12;
-	pdg_fermion = 12; // <<--- depreacted, will be removed when 2to3 processes all implemented
-
   // Initialise some process specific scales/variables
 	scale_opt = -1;
 	// Scale options
@@ -144,7 +148,6 @@ int main(int argc, char *argv[])
 	muf_var = 1.;	
   mu0 = mz;
 	mu_loop = 100.;	// No results depend on mu_reg value
-
 	// Set the collision environment (pp collisions at LHC 13 TeV)
 	Ecms = 100.0;
 	Ecms2 = pow(Ecms,2);
@@ -155,7 +158,12 @@ int main(int argc, char *argv[])
 	print_channels();
 
 	// Now read the specific set of command line arguments
-	read_arguments(argc,argv,seed_cache,isetup,channel,pdg_projectile);	
+	read_arguments(argc,argv,seed_cache,isetup,channel,pdg_projectile,active_virtual);	
+
+	if( active_virtual and channel >= 10 ){
+		cout << "Virtual should only be active for channels 1-9\n";
+		abort();
+	}
 
 	// Update cuba dimensions according to the process
 	update_process_dimensions();
@@ -206,11 +214,16 @@ int main(int argc, char *argv[])
   // save general program settings
 	write_settings(ofile_results,"");
 
+	// Also write the scattering process
+	ofile_results << endl << "# channel_id = " << channel << endl;
+	ofile_results << "# process  = " << process_map.at(channel) << endl;
+
 	/////////////////
 	// Start timer //
 	/////////////////	
   struct timeval t0, t1;
   gettimeofday(&t0,NULL);
+
 
   // Fiducial results for isetup < 3
   if( isetup == 0 ){

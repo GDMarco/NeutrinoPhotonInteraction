@@ -45,10 +45,10 @@ namespace ME2_Analytic {
     // Charged Current exchange
 
     // nu + photon > nu + f fbar [fermion line can be quarks or charged leptons]
-    extern double nu1gamma_l1qqbar(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin, int f1, int f2);
+    extern double nu1gamma_l1qqbar(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin);
 
     // nu1 + photon > l1 + nul + lx [different flavour leptons]
-    extern double nu1gamma_l1nu2l2x(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin, int f1, int f2);
+    extern double nu1gamma_l1nu2l2x(int i1, int i2, int i3, int i4, int i5, KinematicData &Kin);
 
 
     // nu1 + photon > l1 + nul1 + l1x [same flavour leptons]

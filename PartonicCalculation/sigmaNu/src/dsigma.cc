@@ -26,7 +26,7 @@ double dsigma_channels( KinematicData &Kin, int channel_id ){
         // If computing virtual corrections for channels 1-8, require use of recola
         if( active_virtual ){
                 active_recola = true;
-                if( channel_id > 8 ){
+                if( channel_id > 9 ){
                         cerr << "dsigma_channels: requested virtual correction for channel " << channel_id << endl;
                         abort();
                 }
@@ -79,33 +79,32 @@ double dsigma_channels( KinematicData &Kin, int channel_id ){
                 // 28-33
                 if( channel_id > 27 and channel_id < 34 ) ME2 = ME2_Analytic::nugumma_Wl(1,2,3,4, Kin);
 
-                // testing channel
-                if( channel_id == 99 ) ME2 = ME2_Analytic::eeB0g0NCM(1,2,3,4, Kin, pdg_projectile, pdg_fermion);
-
+                // testing channel, for charm production
+                if( channel_id == 99 ) ME2 = ME2_Analytic::eeB0g0NCM(1,2,3,4, Kin, 11, 4);
 
                 // Channels 101+
-                // 101) nu_1 gamma -> nu_1 l_2 l_2~
-                if( channel_id == 101 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, pdg_projectile, pdg_fermion);
-                // 102) nu_1 gamma -> nu_1 q q~
-                if( channel_id == 102 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, pdg_projectile, pdg_fermion); 
-                // 103) nu_1bar gamma -> nu_1bar l_2~ l_2
-                if( channel_id == 103 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(3, 2, 1, 5, 4, Kin, pdg_projectile, pdg_fermion);
-                // 104) nu_1bar gamma -> nu_1bar q~ q
-                if( channel_id == 104 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(3, 2, 1, 5, 4, Kin, pdg_projectile, pdg_fermion);
-                // 105) nu_1 gamma -> l_1 nu_2 l_2~
-                if( channel_id == 105 ) ME2 = ME2_Analytic::nu1gamma_l1nu2l2x(1, 2, 3, 4, 5, Kin, pdg_projectile, pdg_fermion);
-                // 106) nu_1 gamma -> l_1 q q~
-                if( channel_id == 106 ) ME2 = ME2_Analytic::nu1gamma_l1qqbar(1, 2, 3, 4, 5, Kin, pdg_projectile, pdg_fermion);
-                // 107) nu_1x gamma -> l_1x nu_2x l_2
-                if( channel_id == 107 ) ME2 = ME2_Analytic::nu1gamma_l1nu2l2x(1, 2, 3, 4, 5, Kin, pdg_projectile, pdg_fermion);                
-                // 108) nu_1x gamma -> l_1x qx q [c.c. of the above squared amplitude so should be the same]
-                if( channel_id == 108 ) ME2 = ME2_Analytic::nu1gamma_l1qqbar(1, 2, 3, 4, 5, Kin, pdg_projectile, pdg_fermion);
-                // 109) nu_1 gamma -> l_1 nu_1 l_1~
-                if( channel_id == 109 ) ME2 = ME2_Analytic::nu1gamma_l1nu1l1x(1, 2, 3, 4, 5, Kin, pdg_projectile, pdg_fermion);
-                // 110) nu_1~ gamma -> l_1~ nu_1~ l_1
-                if( channel_id == 110 ) ME2 = ME2_Analytic::nu1gamma_l1nu1l1x(1, 2, 3, 4, 5, Kin, pdg_projectile, pdg_fermion);
+                // 101-109) nu_1 gamma -> nu_1 l_2 l_2~
+                if( channel_id == 101 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, 12, 11);
+                if( channel_id == 102 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, 12, 13);
+                if( channel_id == 103 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, 12, 15);
+                if( channel_id == 104 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, 12, 1);
+                if( channel_id == 105 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, 12, 2); // Here there is some problem
+                if( channel_id == 106 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, 12, 3);
+                if( channel_id == 107 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, 12, 4);
+                if( channel_id == 108 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, 12, 5);
+                if( channel_id == 109 ) ME2 = ME2_Analytic::nu1gamma_nu1f2f2x(1, 2, 3, 4, 5, Kin, 12, 6);
+                // 110-115) nu1  + gamma > l1 + nu2 + l2~
+                if( channel_id > 109 and channel_id < 116 ) ME2 = ME2_Analytic::nu1gamma_l1nu2l2x(1, 2, 3, 4, 5, Kin);
+                // 116-118) nu1  + gamma > l1 + nu1 + l1~ [same flavour]
+                if( channel_id > 115 and channel_id < 119 ){
+                        // Currently only one I have not validated/cross-checked, just use Recola for now
+                        ME2 = 2.0 * ME2_Analytic::compute_process_recola(Kin,channel,0);
+                }
+                // 119-121, nu1  + gamma > l1 + u d~ (massless quarks)        
+                if( channel_id > 118 and channel_id < 122 ) ME2 = ME2_Analytic::nu1gamma_l1qqbar(1, 2, 3, 4, 5, Kin);
 
-                if( channel_id > 108 ){
+                // Implement more 2to3 channels here...
+                if( channel_id > 122 ){
                         cout << "Computation still in progress, use recola for now\n";
                         abort();
                 }
@@ -125,8 +124,6 @@ double dsigma_channels( KinematicData &Kin, int channel_id ){
                 if( channel > 27 and channel < 34 ) nu_spin_correction = 2.;
                 cout << "Apply correction to Recola |M|^2 for neutrino spin averaging of " << nu_spin_correction << endl;
                 cout << setprecision(15) << "ME2 / ME2_recola = " << ME2 / ( ME2_rcl * nu_spin_correction ) << endl;
-                // cout << "ME2 = " << ME2 << endl;
-                // cout << "ME2_rcl = " << ME2_rcl << endl;                
                 cout << endl;
         }
 
