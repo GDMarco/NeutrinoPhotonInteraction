@@ -135,6 +135,9 @@ namespace Variables {
 	// Prints channel information
 	void print_channels();
 
+	// Function to setup particle masses per channel
+	void init_channel_information(int, int *pdgs, double *masses);
+
 
 	extern int channel, pdg_projectile, pdg_fermion;
 	void init_recola_processes();

@@ -813,8 +813,8 @@ void debug_PS_point( KinematicData &Kin ){
     }
 
     // Compute the ET of the particles
-    for( int i = 1; i <= Kin.length(); i++ )
-        cout << "ET = " << Kin.p(i).ET() << endl;
+    // for( int i = 1; i <= Kin.length(); i++ )
+    //     cout << "ET = " << Kin.p(i).ET() << endl;
 
     cout << "scale = " << Kin.mur() << endl;
     return;
