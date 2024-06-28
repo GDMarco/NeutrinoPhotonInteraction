@@ -1,0 +1,100 @@
+# The channels can be found in src/var.cc 200-291 or so
+////////////////////
+// 2to2 processes //
+////////////////////
+
+// All neutrino scattering (9 channels)
+// All mass independent (so independent of flavour/mass)
+// same flavour channels
+// 1) nu1 + nu1 > nu1 + nu1
+process_map.emplace( 1, "nu_e nu_e -> nu_e nu_e");
+// 2) nu1 + nu1bar > nu1 + nu1bar
+process_map.emplace( 2, "nu_e nu_e~ -> nu_e nu_e~");
+// 3) nu1bar + nu1bar > nu1bar + nu1bar
+process_map.emplace( 3, "nu_e~ nu_e~ -> nu_e~ nu_e~");
+// 4) nu1bar + nu1 > nu1bar + nu1
+process_map.emplace( 4, "nu_e~ nu_e -> nu_e~ nu_e");
+// mixed-flavour channels
+// 5) nu1 + nu2 > nu1 + nu2
+process_map.emplace( 5, "nu_e nu_mu -> nu_e nu_mu");
+// 6) nu1 + nu2bar > nu1 + nu2bar
+process_map.emplace( 6, "nu_e nu_mu~ -> nu_e nu_mu~");
+// 7) nu1bar + nu2 > nu1bar + nu2
+process_map.emplace( 7, "nu_e~ nu_mu -> nu_e~ nu_mu");
+// 8) nu1bar + nu2bar > nu1bar + nu2bar
+process_map.emplace( 8, "nu_e~ nu_mu~ -> nu_e~ nu_mu~");	
+// neutrino annihilation channels (3 channels)
+// 9) nu1 + nu1bar > nu2 + nu2bar
+process_map.emplace( 9, "nu_1 nu_1~ -> nu_2 nu_2~");
+// 10-12) nu1 + nu1bar > l1 + l1bar (provide outgoing fermion PDG)
+process_map.emplace( 10, "nu_e nu_e~ -> e- e+");
+process_map.emplace( 11, "nu_m nu_m~ -> m- m+");
+process_map.emplace( 12, "nu_t nu_t~ -> t- t+");
+// 13-18) nu1 + nu2bar > l1 + l2bar 
+process_map.emplace( 13, "nu_e nu_m~ -> e- m+");
+process_map.emplace( 14, "nu_e nu_t~ -> e- t+");
+process_map.emplace( 15, "nu_m nu_e~ -> m- e+");
+process_map.emplace( 16, "nu_m nu_t~ -> m- t+");
+process_map.emplace( 17, "nu_t nu_e~ -> t- e+");
+process_map.emplace( 18, "nu_t nu_m~ -> t- m+");
+// 19-24) nu1 + nu1bar > f + fbar
+process_map.emplace( 19, "nu_1 nu_1~ -> d d~");
+process_map.emplace( 20, "nu_1 nu_1~ -> u u~");
+process_map.emplace( 21, "nu_1 nu_1~ -> s s~");
+process_map.emplace( 22, "nu_1 nu_1~ -> c c~");
+process_map.emplace( 23, "nu_1 nu_1~ -> b b~");
+process_map.emplace( 24, "nu_1 nu_1~ -> t t~");
+// 25-27) nu1 + nu1bar > l + lbar
+process_map.emplace( 25, "nu_1 nu_1~ -> e- e+");
+process_map.emplace( 26, "nu_1 nu_1~ -> mu- mu+");
+process_map.emplace( 27, "nu_1 nu_1~ -> tau- tau+");	
+// Onshell W processes
+// 28-30) nu1 + gamma > W+ l-
+process_map.emplace( 28, "nu_e gamma -> W+ e-");
+process_map.emplace( 29, "nu_m gamma -> W+ m-");
+process_map.emplace( 30, "nu_t gamma -> W+ t-");
+// 31-33) nu1bar + gamma > W- l+
+process_map.emplace( 31, "nu_e~ gamma -> W- e+");
+process_map.emplace( 32, "nu_m~ gamma -> W- m+");
+process_map.emplace( 33, "nu_t~ gamma -> W- t+");
+
+// 99) e- e+ > Q Qbar [testing channel]
+process_map.emplace( 99, "e- e+ -> c c~");	
+
+////////////////////
+// 2to3 processes //
+////////////////////
+
+// neutrino + photon scattering NC exchanges
+// 101-103) nu1  + gamma > nu1 + l2 + l2bar
+process_map.emplace( 101, "nu gamma -> nu e- e+");
+process_map.emplace( 102, "nu gamma -> nu mu- mu+");
+process_map.emplace( 103, "nu gamma -> nu tau- tau+");
+// 104-109) nu1 + gamma > nu1 + q + qbar
+process_map.emplace( 104, "nu gamma -> nu d d~");
+process_map.emplace( 105, "nu gamma -> nu u u~");
+process_map.emplace( 106, "nu gamma -> nu s s~");
+process_map.emplace( 107, "nu gamma -> nu c c~");
+process_map.emplace( 108, "nu gamma -> nu b b~");
+process_map.emplace( 109, "nu gamma -> nu t t~");
+
+// neutrino + photon scattering CC exchanges
+// 110-115) nu1  + gamma > l1 + nu2 + l2~ 
+process_map.emplace( 110, "nu_e gamma -> e- nu_mu mu+");
+process_map.emplace( 111, "nu_e gamma -> e- nu_tau tau+");
+process_map.emplace( 112, "nu_mu gamma -> mu- nu_e e+");
+process_map.emplace( 113, "nu_mu gamma -> mu- nu_tau tau+");
+process_map.emplace( 114, "nu_tau gamma -> tau- nu_e e+");
+process_map.emplace( 115, "nu_tau gamma -> tau- nu_muu mu+");
+
+// neutrino + photon same lepton flavour cases (1 channel + c.c.)
+// 116-119) nu1  + gamma > l1 + nu1 + l1~
+process_map.emplace( 116, "nu_e gamma -> e- nu_e e+");
+process_map.emplace( 117, "nu_mu gamma -> mu- nu_mu mu+");
+process_map.emplace( 118, "nu_tau gamma -> tau- nu_tau tau+");		
+
+// .... quark channels just consider massless quarks
+// 119-121)
+process_map.emplace( 119, "nu_e gamma -> e- u d~");
+process_map.emplace( 120, "nu_mu gamma -> mu- u d~");
+process_map.emplace( 121, "nu_tau gamma -> tau- u d~");
