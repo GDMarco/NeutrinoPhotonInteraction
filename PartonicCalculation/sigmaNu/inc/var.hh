@@ -40,8 +40,8 @@ namespace Variables {
 	const double mm = 105.65837e-3;
 	const double mtau = 1.77686;
 	// quarks
-	const double md = 0.0;
-	const double mu = 0.0;
+	const double md = 0.05; // Introduce ficticious masses m_pi0 / 2
+	const double mu = 0.05;
 	const double mc = 1.51;
 	const double mb = 4.92;
 	const double mt = 173.0;
