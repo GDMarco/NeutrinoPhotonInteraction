@@ -208,6 +208,8 @@ int main(int argc, char *argv[])
 	//////////////////////////////
 	const std::string s_analysis[2] = {"SigmaIncl","SigmaIncl_Ecms"};
   string outfile = s_analysis[isetup]+"_channel"+to_string(channel);
+  // If active virtual, add NLO tag to file
+  if( active_virtual ) outfile = outfile +"_virt";
   ofstream ofile_results;
   // open file
   ofile_results.open(outfile+"_s"+to_string(seed_cache)+".txt");
@@ -216,6 +218,7 @@ int main(int argc, char *argv[])
 
 	// Also write the scattering process
 	ofile_results << endl << "# channel_id = " << channel << endl;
+	ofile_results << " active_virtual = " << active_virtual << endl;
 	ofile_results << "# process  = " << process_map.at(channel) << endl;
 
 	/////////////////
@@ -276,15 +279,11 @@ int main(int argc, char *argv[])
 			sigma.push_back( sigma_incl );
 		}
 
-		// Now test the formula
-
-
 		ofile_results << "# Ecms\tsigma[pb]\tsigma_error[pb]\n";
 		// Write the results to the file
 		for( unsigned int i=0; i < sigma.size(); i++ ){
 		// for( auto i: sigma ){
 			array<double,2> sig = sigma[i];
-
 			ofile_results << exp(Ecms_values[i]) << "\t"	<< sig[0] << "\t" << sig[1] << endl;
 		}		
 	}
